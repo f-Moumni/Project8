@@ -2,19 +2,20 @@ package tourGuide.service;
 
 import java.util.List;
 
+
 import org.springframework.stereotype.Service;
 
-import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
 import rewardCentral.RewardCentral;
 import tourGuide.model.User;
 import tourGuide.model.UserReward;
+import tourGuide.utils.Distance;
 
 @Service
 public class RewardsService {
-    private static final double STATUTE_MILES_PER_NAUTICAL_MILE = 1.15077945;
+
 
 	// proximity in miles
     private int defaultProximityBuffer = 10;
@@ -33,56 +34,54 @@ public class RewardsService {
 	 * calcule la récompense
 	 * @param user
 	 */
+
 	public void calculateRewards(User user) {
-		List<VisitedLocation> userLocations = user.getVisitedLocations();
+		//List<VisitedLocation> userLocations = user.getVisitedLocations();
 		List<Attraction> attractions = gpsService.getAttractions();
+		user.getVisitedLocations().forEach(vl-> { attractions.forEach( a -> {
+			if(user.getUserRewards().stream()
+				.filter(r -> r.attraction.attractionName.equals(a.attractionName)).count() == 0)
+		{
+			if(isNearAttraction(vl, a)) {
+				user.addUserReward(new UserReward(vl, a, getRewardPoints(a, user)));
+			}
+		}} );
 
-		//userLocations.parallelStream().forEach(l->);
-
-		for(VisitedLocation visitedLocation : userLocations) {
+	});
+		/*	for(VisitedLocation visitedLocation : userLocations) {
 			for(Attraction attraction : attractions) {
 				if(user.getUserRewards().stream()
-						.filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {
-					if(nearAttraction(visitedLocation, attraction)) {
+						.filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0)
+				{
+					if(isNearAttraction(visitedLocation, attraction)) {
 						user.addUserReward(new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
 					}
 				}
 			}
-		}
+		}*/
 	}
 
-	//todo a deplacer dans Gps Service
 	public void setProximityBuffer(int proximityBuffer) {
 		this.proximityBuffer = proximityBuffer;
 	}
 
-	public void setDefaultProximityBuffer() {
-		proximityBuffer = defaultProximityBuffer;
-	}
-	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
-		return getDistance(attraction, location) > attractionProximityRange ? false : true;
-	}
 
+	//todo near attraction
+		public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
+		return Distance.getDistance(attraction, location) < attractionProximityRange;
+	}
+	 /*
 	private boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
-		return getDistance(attraction, visitedLocation.location) > proximityBuffer ? false : true;
+		return Distance.getDistance(attraction, visitedLocation.location) > proximityBuffer ? false : true;
+	}*/
+	private boolean isNearAttraction(VisitedLocation visitedLocation, Location attractionLocation) {
+		return Distance.getDistance(attractionLocation, visitedLocation.location) < defaultProximityBuffer;
 	}
 	
 	private int getRewardPoints(Attraction attraction, User user) {
 		return rewardsCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
 	}
 	
-	public double getDistance(Location loc1, Location loc2) {
-        double lat1 = Math.toRadians(loc1.latitude);
-        double lon1 = Math.toRadians(loc1.longitude);
-        double lat2 = Math.toRadians(loc2.latitude);
-        double lon2 = Math.toRadians(loc2.longitude);
 
-        double angle = Math.acos(Math.sin(lat1) * Math.sin(lat2)
-                               + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon1 - lon2));
-
-        double nauticalMiles = 60 * Math.toDegrees(angle);
-        double statuteMiles = STATUTE_MILES_PER_NAUTICAL_MILE * nauticalMiles;
-        return statuteMiles;
-	}
 
 }

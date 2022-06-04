@@ -6,8 +6,10 @@ import tripPricer.TripPricer;
 
 import java.util.List;
 
+import static tourGuide.constant.Constant.tripPricerApiKey;
+
 public class TripPricerService {
-    private static final String tripPricerApiKey = "test-server-api-key";
+
 private final TripPricer tripPricer ;
 
     public TripPricerService(TripPricer tripPricer) {

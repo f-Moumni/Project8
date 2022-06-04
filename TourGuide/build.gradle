@@ -59,7 +59,11 @@ jacocoTestReport {
 
 test.finalizedBy jacocoTestReport
 check.dependsOn jacocoTestCoverageVerification
-
+jar {
+    manifest {
+        attributes 'Main-Class': 'tourGuide.Application'
+    }
+}
 jacocoTestCoverageVerification {
   violationRules {
     rule {

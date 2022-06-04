@@ -41,7 +41,7 @@ public class TestRewardsService {
 		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		Attraction attraction = gpsService.getAttractions().get(0);
 		user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
-		tourGuideService.trackUserLocation(user);
+		tourGuideService.calculateRewards(user);
 		List<UserReward> userRewards = user.getUserRewards();
 		tourGuideService.tracker.stopTracking();
 		assertTrue(userRewards.size() == 1);
@@ -52,7 +52,7 @@ public class TestRewardsService {
 		GpsUtil gpsUtil = new GpsUtil();
 		GpsService gpsService = new GpsService(gpsUtil);
 		RewardsService rewardsService = new RewardsService(gpsService, new RewardCentral());
-		Attraction attraction = gpsUtil.getAttractions().get(0);
+		Attraction attraction = gpsService.getAttractions().get(0);
 		assertTrue(rewardsService.isWithinAttractionProximity(attraction, attraction));
 	}
 	
