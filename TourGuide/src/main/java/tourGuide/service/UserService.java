@@ -20,14 +20,9 @@ public class UserService {
     @Autowired
     UserRepository userRepository;
     private final Logger logger = LoggerFactory.getLogger(UserService.class);
-    boolean testMode = true;
+
     public UserService() {
-        if(testMode) {
-            logger.info("TestMode enabled");
-            logger.debug("Initializing users");
-          initializeInternalUsers();
-            logger.debug("Finished initializing users");
-        }
+
     }
 
     public User getUser(String userName) {

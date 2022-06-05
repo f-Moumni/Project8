@@ -2,6 +2,10 @@ package tourGuide.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +16,6 @@ import gpsUtil.location.VisitedLocation;
 import tourGuide.tracker.Tracker;
 import tourGuide.model.User;
 import tourGuide.model.UserReward;
-import tripPricer.Provider;
-import tripPricer.TripPricer;
 
 @Service
 public class TourGuideService {
@@ -22,12 +24,19 @@ public class TourGuideService {
     private final RewardsService rewardsService;
     private final UserService userService;
     public final Tracker tracker;
-
+    ExecutorService service = Executors.newFixedThreadPool(100);
+    boolean testMode = true;
 
     public TourGuideService(GpsService gpsService, RewardsService rewardsService, UserService userService) {
         this.gpsService = gpsService;
         this.rewardsService = rewardsService;
         this.userService = userService;
+        if(testMode) {
+            logger.info("TestMode enabled");
+            logger.debug("Initializing users");
+            userService.initializeInternalUsers();
+            logger.debug("Finished initializing users");
+        }
         tracker = new Tracker(this);
         addShutDownHook();
     }
@@ -40,21 +49,21 @@ public class TourGuideService {
         return userService.getUser(userName);
     }
 
-    public VisitedLocation getUserLocation(User user) {
-        VisitedLocation visitedLocation = (user.getVisitedLocations().size() > 0) ?
-                user.getLastVisitedLocation() :
-                trackUserLocation(user);
-        return visitedLocation;
+    public CompletableFuture<VisitedLocation> getUserLocation(User user) {
+
+        return  (user.getVisitedLocations().size() > 0) ? CompletableFuture.completedFuture(user.getLastVisitedLocation()) : trackUserLocation(user);
     }
 
-    public VisitedLocation trackUserLocation(User user) {
-        VisitedLocation visitedLocation = gpsService.getUserLocation(user);
-        user.addToVisitedLocations(visitedLocation);;
-        return visitedLocation;
+    public CompletableFuture<VisitedLocation> trackUserLocation(User user) {
+      return CompletableFuture.supplyAsync (()->
+          gpsService.getUserLocation(user),service).thenApply(visitedLocation -> {
+          rewardsService.calculateRewards(user);
+          return visitedLocation;
+      });
     }
 
-    public void calculateRewards(User user){
-        rewardsService.calculateRewards(user);
+    public CompletableFuture<Void> calculateRewards(User user) throws ExecutionException, InterruptedException {
+       return rewardsService.calculateRewards(user);
     }
 
     public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {

@@ -11,6 +11,8 @@ import tourGuide.service.TourGuideService;
 import tripPricer.Provider;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 @RestController
 public class TourGuideController {
 
@@ -23,9 +25,10 @@ public class TourGuideController {
         }
 
         @RequestMapping("/getLocation")
-        public String getLocation(@RequestParam String userName) {
-            VisitedLocation visitedLocation = tourGuideService.getUserLocation(tourGuideService.getUser(userName));
-            return JsonStream.serialize(visitedLocation.location);
+        public String getLocation(@RequestParam String userName) throws ExecutionException, InterruptedException {
+            return tourGuideService.getUserLocation(tourGuideService.getUser(userName))
+                                   .thenApply(visitedLocation -> JsonStream.serialize(visitedLocation.location) ).get();
+
         }
 
         //  TODO: Change this method to no longer return a List of Attractions.
@@ -37,12 +40,12 @@ public class TourGuideController {
         // The distance in miles between the user's location and each of the attractions.
         // The reward points for visiting each Attraction.
         //    Note: Attraction reward points can be gathered from RewardsCentral
-        @RequestMapping("/getNearbyAttractions")
+    /* @RequestMapping("/getNearbyAttractions")
         public String getNearbyAttractions(@RequestParam String userName) {
             VisitedLocation visitedLocation = tourGuideService.getUserLocation(tourGuideService.getUser(userName));
             return JsonStream.serialize(tourGuideService.getNearByAttractions(visitedLocation));
         }
-
+*/
         @RequestMapping("/getRewards")
         public String getRewards(@RequestParam String userName) {
             return JsonStream.serialize(tourGuideService.getUserRewards(tourGuideService.getUser(userName)));
