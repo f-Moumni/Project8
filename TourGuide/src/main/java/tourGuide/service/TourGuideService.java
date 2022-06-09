@@ -83,13 +83,33 @@ public class TourGuideService {
         return rewardsService.calculateRewards(user);
     }
 
-    public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
-        List<Attraction> nearbyAttractions = new ArrayList<>();
-        for (Attraction attraction : gpsService.getAttractions()) {
-            if (rewardsService.isWithinAttractionProximity(attraction, visitedLocation.location)) {
-                nearbyAttractions.add(attraction);
-            }
-        }
+    /**
+     * get five near attraction to the given user;
+     *
+     * @param userName
+     *
+     * @return list off near attractions
+     *
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public List<NearAttractionDTO> getNearAttractions(String userName) {
+
+        UserDTO user = userService.getUser(userName);
+        return getUserLocation(user)
+                .thenApply(visitedLocation -> {
+                    return gpsService.getAttractions()
+                                     .stream()
+                                     .map(attraction -> {
+                                         return new NearAttractionDTO(attraction.latitude, attraction.longitude, attraction.attractionName
+                                                 , Distance.getDistance(visitedLocation.location, attraction),
+                                                 rewardsService.getRewardPoints(attraction.attractionId, user.getUserId()));
+                                     })
+                                     .sorted(Comparator.comparingInt(NearAttractionDTO::getRewardPoints))
+                                     .limit(NUMBER_OF_NEAR_ATTRACTIONS)
+                                     .toList();
+                }).join();
+    }
 
     public Map<String, Location>getAllUsersLocation() {
         Map<String, Location> userlocations =new TreeMap<>();

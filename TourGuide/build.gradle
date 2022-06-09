@@ -27,8 +27,8 @@ repositories {
     }
 }
 
-sourceCompatibility = 17
-targetCompatibility = 17
+sourceCompatibility = 16
+targetCompatibility = 16
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
