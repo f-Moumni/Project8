@@ -6,7 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import tourGuide.model.User;
+import tourGuide.dto.UserDTO;
+import tourGuide.dto.UserRewardDTO;
 import tourGuide.repository.UserRepository;
 import tourGuide.utils.InternalTestHelper;
 
@@ -24,16 +25,18 @@ public class UserService {
     public UserService() {
 
     }
-
-    public User getUser(String userName) {
+    public List<UserRewardDTO> getUserRewards(UserDTO user) {
+        return user.getUserRewards();
+    }
+    public UserDTO getUser(String userName) {
         return internalUserMap.get(userName);
     }
 
-    public List<User> getAllUsers() {
+    public List<UserDTO> getAllUsers() {
         return internalUserMap.values().stream().collect(Collectors.toList());
     }
 
-    public void addUser(User user) {
+    public void addUser(UserDTO user) {
         if(!internalUserMap.containsKey(user.getUserName())) {
             internalUserMap.put(user.getUserName(), user);
         }
@@ -46,15 +49,15 @@ public class UserService {
      **********************************************************************************/
 
     // Database connection will be used for external users, but for testing purposes internal users are provided and stored in memory
-    private final Map<String, User> internalUserMap = new HashMap<>();
+    private final Map<String, UserDTO> internalUserMap = new HashMap<>();
 
 
     public void initializeInternalUsers() {
         IntStream.range(0, InternalTestHelper.getInternalUserNumber()).forEach(i -> {
             String userName = "internalUser" + i;
             String phone = "000";
-            String email = userName + "@tourGuide.com";
-            User user = new User(UUID.randomUUID(), userName, phone, email);
+            String  email = userName + "@tourGuide.com";
+            UserDTO user  = new UserDTO(UUID.randomUUID(), userName, phone, email);
             generateUserLocationHistory(user);
 
             internalUserMap.put(userName, user);
@@ -62,7 +65,7 @@ public class UserService {
         logger.debug("Created " + InternalTestHelper.getInternalUserNumber() + " internal test users.");
     }
 
-    private void generateUserLocationHistory(User user) {
+    private void generateUserLocationHistory(UserDTO user) {
         IntStream.range(0, 3).forEach(i-> {
             user.addToVisitedLocations(new VisitedLocation(user.getUserId(), new Location(generateRandomLatitude(), generateRandomLongitude()), getRandomTime()));
         });

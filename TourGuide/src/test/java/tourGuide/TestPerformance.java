@@ -1,18 +1,15 @@
 package tourGuide;
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.time.StopWatch;
+
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import gpsUtil.GpsUtil;
@@ -24,7 +21,10 @@ import tourGuide.service.UserService;
 import tourGuide.utils.InternalTestHelper;
 import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
-import tourGuide.model.User;
+import tourGuide.dto.UserDTO;
+
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 public class TestPerformance {
 
@@ -66,18 +66,23 @@ public class TestPerformance {
         InternalTestHelper.setInternalUserNumber(100000);
         TourGuideService tourGuideService = new TourGuideService(gpsService, rewardsService, userService);
 
-        List<User> allUsers = new ArrayList<>();
+        List<UserDTO> allUsers = new ArrayList<>();
         allUsers = tourGuideService.getAllUsers();
-
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
         List<CompletableFuture<VisitedLocation>> tasksFuture = new ArrayList<>();
+        StopWatch                                stopWatch   = new StopWatch();
+        stopWatch.start();
+
         allUsers.forEach(u -> tasksFuture.add(tourGuideService.trackUserLocation(u)));
-        tasksFuture.forEach(CompletableFuture::join);
+
+        CompletableFuture<Void> allFutures = CompletableFuture
+                .allOf(tasksFuture.toArray(new CompletableFuture[tasksFuture.size()]));
+
+        allFutures.join();
+
         stopWatch.stop();
         tourGuideService.tracker.stopTracking();
-
         System.out.println("highVolumeTrackLocation: Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
+        assertTrue(allFutures.isDone());
         assertTrue(TimeUnit.MINUTES.toSeconds(15) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
     }
 
@@ -85,35 +90,44 @@ public class TestPerformance {
     @Test
     public void highVolumeGetRewards() {
 
+        StopWatch      stopWatch      = new StopWatch();
         GpsUtil        gpsUtil        = new GpsUtil();
         GpsService     gpsService     = new GpsService(gpsUtil);
         RewardsService rewardsService = new RewardsService(gpsService, new RewardCentral());
-        UserService userService = new UserService();
+        UserService    userService    = new UserService();
         // Users should be incremented up to 100,000, and test finishes within 20 minutes
+
         InternalTestHelper.setInternalUserNumber(100000);
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+
         TourGuideService tourGuideService = new TourGuideService(gpsService, rewardsService, userService);
 
         Attraction attraction = gpsService.getAttractions().get(0);
-        List<User> allUsers   = new ArrayList<>();
-        allUsers = tourGuideService.getAllUsers();
+
+        List<UserDTO> allUsers = tourGuideService.getAllUsers();
         allUsers.forEach(u -> u.addToVisitedLocations(new VisitedLocation(u.getUserId(), attraction, new Date())));
 
         List<CompletableFuture<Void>> tasksFuture = new ArrayList<>();
-
         allUsers.forEach(u -> tasksFuture.add(rewardsService.calculateRewards(u)));
 
-        tasksFuture.forEach(CompletableFuture::join);
+        stopWatch.start();
+        CompletableFuture<Void> allFutures = CompletableFuture
+                .allOf(tasksFuture.toArray(new CompletableFuture[tasksFuture.size()]));
 
-        for (User user : allUsers) {
+        allFutures.join();
+
+
+        tourGuideService.tracker.stopTracking();
+        System.out.println(allUsers.size());
+        for (UserDTO user : allUsers) {
+
+            assertNotEquals(0, user.getUserRewards().get(0).getRewardPoints());
             assertTrue(user.getUserRewards().size() > 0);
         }
         stopWatch.stop();
-        tourGuideService.tracker.stopTracking();
-
         System.out.println("highVolumeGetRewards: Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
-        assertTrue(TimeUnit.MINUTES.toSeconds(20) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
-    }
+        assertTrue(allFutures.isDone());
+        assertTrue(TimeUnit.MINUTES.toSeconds(20) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch
+                .getTime()));
 
+    }
 }

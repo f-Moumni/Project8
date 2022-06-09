@@ -21,8 +21,8 @@ import tourGuide.service.UserService;
 import tourGuide.utils.InternalTestHelper;
 import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
-import tourGuide.model.User;
-import tourGuide.model.UserReward;
+import tourGuide.dto.UserDTO;
+import tourGuide.dto.UserRewardDTO;
 
 public class TestRewardsService {
 
@@ -39,11 +39,11 @@ public class TestRewardsService {
 		UserService userService =new UserService();
 		InternalTestHelper.setInternalUserNumber(0);
 		TourGuideService tourGuideService = new TourGuideService(gpsService, rewardsService, userService);
-		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-		Attraction attraction = gpsService.getAttractions().get(0);
+		UserDTO          user             = new UserDTO(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+		Attraction       attraction       = gpsService.getAttractions().get(0);
 		user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
 		tourGuideService.calculateRewards(user).get();
-		List<UserReward> userRewards = user.getUserRewards();
+		List<UserRewardDTO> userRewards = user.getUserRewards();
 		tourGuideService.tracker.stopTracking();
 		assertTrue(userRewards.size() == 1);
 	}
@@ -70,7 +70,7 @@ public class TestRewardsService {
 		TourGuideService tourGuideService = new TourGuideService(gpsService, rewardsService, userService);
 		
 		rewardsService.calculateRewards(userService.getAllUsers().get(0));
-		List<UserReward> userRewards = tourGuideService.getUserRewards(userService.getAllUsers().get(0));
+		List<UserRewardDTO> userRewards = tourGuideService.getUserRewards(userService.getAllUsers().get(0));
 		tourGuideService.tracker.stopTracking();
 
 		assertEquals(gpsUtil.getAttractions().size(), userRewards.size());
