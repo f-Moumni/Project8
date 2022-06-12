@@ -16,9 +16,10 @@ repositories {
 }
 
 dependencies {
+    implementation(name:'gpsUtil', ext:'jar')
     implementation 'org.springframework.boot:spring-boot-starter-web'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    implementation(name:'gpsUtil', ext:'jar')
+
 }
 
 tasks.named('test') {

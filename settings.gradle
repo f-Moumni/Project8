@@ -8,8 +8,8 @@
  */
 
 rootProject.name = 'TourGuide'
-include 'User'
 include 'GpsUtil'
 include 'Common'
-include 'TourGuideAPP'
+include 'Rewards'
+include 'TourGuideApp'
 

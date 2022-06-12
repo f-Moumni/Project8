@@ -3,8 +3,8 @@ package tourGuide.service;
 import Common.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import rewardCentral.RewardCentral;
 import tourGuide.proxies.GpsServiceProxy;
+import tourGuide.proxies.RewardsServiceProxy;
 import tourGuide.utils.Distance;
 
 import java.util.List;
@@ -17,10 +17,13 @@ import java.util.stream.Collectors;
 @Service
 public class RewardsService {
 
-    private final RewardCentral   rewardsCentral = new RewardCentral();
+
     public        ExecutorService service        = Executors.newCachedThreadPool();
     @Autowired
     private       GpsServiceProxy gpsServiceProxy;
+
+    @Autowired
+    private RewardsServiceProxy rewardsServiceProxy;
     // proximity in miles
     private int defaultProximityBuffer   = 10;
     private int proximityBuffer          = defaultProximityBuffer;
@@ -72,7 +75,7 @@ public class RewardsService {
 
     public int getRewardPoints(UUID attractionId, UUID userId) {
 
-        return rewardsCentral.getAttractionRewardPoints(attractionId, userId);
+        return rewardsServiceProxy.getAttractionRewardPoints(attractionId, userId);
     }
 
 
