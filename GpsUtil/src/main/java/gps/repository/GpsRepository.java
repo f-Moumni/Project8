@@ -13,12 +13,11 @@ import java.util.List;
 public class GpsRepository {
 
     private final List<Attraction> attractions = new ArrayList<>();
-    private final GpsUtil          gpsUtil     = new GpsUtil();
 
 
     public void loadAttractions(List<Attraction> attractions) {
         this.attractions.clear();
-        this.attractions.addAll(gpsUtil.getAttractions());
+        this.attractions.addAll(attractions);
     }
 
     public List<Attraction> getAttractions() {

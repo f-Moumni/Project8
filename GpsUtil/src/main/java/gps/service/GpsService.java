@@ -1,8 +1,7 @@
 package gps.service;
 
 
-
-
+import gps.Exception.DataNotFoundException;
 import gps.repository.GpsRepository;
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
@@ -19,20 +18,26 @@ import java.util.UUID;
 @Service
 public class GpsService {
 
-    private final Logger        LOGGER = LoggerFactory.getLogger(GpsService.class);
-    @Autowired
-    private       GpsRepository gpsRepository;
+    private final Logger LOGGER = LoggerFactory.getLogger(GpsService.class);
+
+    private final GpsRepository gpsRepository;
 
     private final GpsUtil gpsUtil = new GpsUtil();
 
     @Autowired
-    public GpsService() {
-        gpsRepository.loadAttractions(gpsUtil.getAttractions());
+    public GpsService(GpsRepository gpsRepository) {
+
+        this.gpsRepository = gpsRepository;
+        this.gpsRepository.loadAttractions(gpsUtil.getAttractions());
     }
 
-    public VisitedLocation getUserLocation(UUID userId) {
+    public VisitedLocation getUserLocation(UUID userId) throws DataNotFoundException {
 
-        return gpsUtil.getUserLocation(userId);
+        VisitedLocation visitedLocation = gpsUtil.getUserLocation(userId);
+        if (visitedLocation == null) {
+            throw new DataNotFoundException("user with ID " + userId + " note found");
+        }
+        return visitedLocation;
     }
 
     public List<Attraction> getAttractions() {

@@ -1,13 +1,11 @@
 package gps.controller;
 
-import com.GpsUtil.Gps.service.GpsService;
+import gps.Exception.DataNotFoundException;
+import gps.service.GpsService;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,8 +22,8 @@ public class GpsController {
         return gpsService.getAttractions();
     }
 
-    @GetMapping("userLocation/{userID}")
-    public VisitedLocation getUserLocation(@PathVariable("userID")UUID userID ){
+    @GetMapping("userLocation")
+    public VisitedLocation getUserLocation(@RequestParam UUID userID ) throws DataNotFoundException {
         return gpsService.getUserLocation(userID);
     }
 }
