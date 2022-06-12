@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TourGuideAPP</a> &gt; <a href="index.source.html" class="el_package">tourGuide.service</a> &gt; <span class="el_source">UserService.java</span></div><h1>UserService.java</h1><pre class="source lang-java linenums">package tourGuide.service;
+
+import Common.model.Location;
+import Common.model.User;
+import Common.model.UserReward;
+import Common.model.VisitedLocation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import tourGuide.repository.UserRepository;
+import tourGuide.utils.InternalTestHelper;
+
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+@Service
+public class UserService {
+
+    private final UserRepository userRepository;
+<span class="fc" id="L24">    private final Logger         logger = LoggerFactory.getLogger(UserService.class);</span>
+    @Autowired
+<span class="fc" id="L26">    public UserService(UserRepository userRepository) {this.userRepository = userRepository;}</span>
+    /**********************************************************************************
+     *
+     * Methods Below: For Internal Testing
+     *
+     **********************************************************************************/
+
+    // Database connection will be used for external users, but for testing purposes internal users are provided and stored in memory
+<span class="fc" id="L34">    private final Map&lt;String, User&gt; internalUserMap = new HashMap&lt;&gt;();</span>
+
+
+
+    public List&lt;UserReward&gt; getUserRewards(User user) {
+
+<span class="nc" id="L40">        return user.getUserRewards();</span>
+    }
+
+    public User getUser(String userName) {
+
+<span class="nc" id="L45">        return internalUserMap.get(userName);</span>
+    }
+
+    public List&lt;User&gt; getAllUsers() {
+
+<span class="fc" id="L50">        return internalUserMap.values().stream().collect(Collectors.toList());</span>
+    }
+
+    public void addUser(User user) {
+
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (!internalUserMap.containsKey(user.getUserName())) {</span>
+<span class="nc" id="L56">            internalUserMap.put(user.getUserName(), user);</span>
+        }
+<span class="nc" id="L58">    }</span>
+
+    public void initializeInternalUsers() {
+
+<span class="fc" id="L62">        IntStream.range(0, InternalTestHelper.getInternalUserNumber()).forEach(i -&gt; {</span>
+<span class="fc" id="L63">            String userName = &quot;internalUser&quot; + i;</span>
+<span class="fc" id="L64">            String phone    = &quot;000&quot;;</span>
+<span class="fc" id="L65">            String email    = userName + &quot;@tourGuide.com&quot;;</span>
+<span class="fc" id="L66">            User   user     = new User(UUID.randomUUID(), userName, phone, email);</span>
+<span class="fc" id="L67">            generateUserLocationHistory(user);</span>
+
+<span class="fc" id="L69">            internalUserMap.put(userName, user);</span>
+<span class="fc" id="L70">        });</span>
+<span class="fc" id="L71">        logger.debug(&quot;Created &quot; + InternalTestHelper.getInternalUserNumber() + &quot; internal test users.&quot;);</span>
+<span class="fc" id="L72">    }</span>
+
+    private void generateUserLocationHistory(User user) {
+
+<span class="fc" id="L76">        IntStream.range(0, 3).forEach(i -&gt; {</span>
+<span class="fc" id="L77">            user.addToVisitedLocations(new VisitedLocation(user.getUserId(), new Location(generateRandomLatitude(), generateRandomLongitude()), getRandomTime()));</span>
+<span class="fc" id="L78">        });</span>
+<span class="fc" id="L79">    }</span>
+
+    private double generateRandomLongitude() {
+
+<span class="fc" id="L83">        double leftLimit  = -180;</span>
+<span class="fc" id="L84">        double rightLimit = 180;</span>
+<span class="fc" id="L85">        return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);</span>
+    }
+
+    private double generateRandomLatitude() {
+
+<span class="fc" id="L90">        double leftLimit  = -85.05112878;</span>
+<span class="fc" id="L91">        double rightLimit = 85.05112878;</span>
+<span class="fc" id="L92">        return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);</span>
+    }
+
+    private Date getRandomTime() {
+
+<span class="fc" id="L97">        LocalDateTime localDateTime = LocalDateTime.now().minusDays(new Random().nextInt(30));</span>
+<span class="fc" id="L98">        return Date.from(localDateTime.toInstant(ZoneOffset.UTC));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

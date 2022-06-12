@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TourGuideService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TourGuideAPP</a> &gt; <a href="index.source.html" class="el_package">tourGuide.service</a> &gt; <span class="el_source">TourGuideService.java</span></div><h1>TourGuideService.java</h1><pre class="source lang-java linenums">package tourGuide.service;
+
+import Common.DTO.NearAttractionDTO;
+import Common.model.Location;
+import Common.model.User;
+import Common.model.UserReward;
+import Common.model.VisitedLocation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import tourGuide.proxies.GpsServiceProxy;
+import tourGuide.tracker.Tracker;
+import tourGuide.utils.Distance;
+import tripPricer.Provider;
+
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+
+import static tourGuide.constant.Constant.NUMBER_OF_NEAR_ATTRACTIONS;
+
+@Service
+public class TourGuideService {
+
+    public final  Tracker tracker;
+<span class="fc" id="L33">    private final Logger  logger = LoggerFactory.getLogger(TourGuideService.class);</span>
+    private final GpsServiceProxy gpsServiceProxy;
+    private final RewardsService rewardsService;
+    private final UserService userService;
+    private final TripPricerService tripPricerService;
+<span class="fc" id="L38">    ExecutorService service  = Executors.newFixedThreadPool(100);</span>
+<span class="fc" id="L39">    boolean         testMode = true;</span>
+
+    @Autowired
+<span class="fc" id="L42">    public TourGuideService(GpsServiceProxy gpsServiceProxy, RewardsService rewardsService, UserService userService, TripPricerService tripPricerService) {</span>
+
+<span class="fc" id="L44">        this.gpsServiceProxy   = gpsServiceProxy;</span>
+<span class="fc" id="L45">        this.rewardsService    = rewardsService;</span>
+<span class="fc" id="L46">        this.userService       = userService;</span>
+<span class="fc" id="L47">        this.tripPricerService = tripPricerService;</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        if (testMode) {</span>
+<span class="fc" id="L49">            logger.info(&quot;TestMode enabled&quot;);</span>
+<span class="fc" id="L50">            logger.debug(&quot;Initializing users&quot;);</span>
+<span class="fc" id="L51">            userService.initializeInternalUsers();</span>
+<span class="fc" id="L52">            logger.debug(&quot;Finished initializing users&quot;);</span>
+        }
+<span class="fc" id="L54">        tracker = new Tracker(this);</span>
+<span class="fc" id="L55">        addShutDownHook();</span>
+<span class="fc" id="L56">    }</span>
+
+    public List&lt;UserReward&gt; getUserRewards(User user) {
+
+<span class="nc" id="L60">        return userService.getUserRewards(user);</span>
+    }
+
+    public User getUser(String userName) {
+
+<span class="nc" id="L65">        return userService.getUser(userName);</span>
+    }
+
+    public CompletableFuture&lt;VisitedLocation&gt; getUserLocation(User user) {
+
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        return (user.getVisitedLocations().size() &gt; 0) ?</span>
+<span class="nc" id="L71">                CompletableFuture.completedFuture(user.getLastVisitedLocation())</span>
+<span class="nc" id="L72">                : trackUserLocation(user);</span>
+    }
+
+    public CompletableFuture&lt;VisitedLocation&gt; trackUserLocation(User user) {
+
+<span class="fc" id="L77">        return CompletableFuture.supplyAsync(() -&gt;</span>
+<span class="fc" id="L78">                gpsServiceProxy.getUserLocation(user.getUserId()), service).thenApply(visitedLocation -&gt; {</span>
+<span class="fc" id="L79">            calculateRewards(user);</span>
+<span class="fc" id="L80">            return visitedLocation;</span>
+        });
+    }
+
+    /**
+     * calculate rewards for given user
+     *
+     * @param user
+     *
+     * @return a void CompletableFuture
+     */
+    public CompletableFuture&lt;Void&gt; calculateRewards(User user) {
+
+<span class="fc" id="L93">        return rewardsService.calculateRewards(user);</span>
+    }
+
+    /**
+     * get five near attraction to the given user;
+     *
+     * @param userName
+     *
+     * @return list off near attractions
+     *
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public List&lt;NearAttractionDTO&gt; getNearAttractions(String userName) {
+
+<span class="nc" id="L108">        User user = userService.getUser(userName);</span>
+<span class="nc" id="L109">        return getUserLocation(user)</span>
+<span class="nc" id="L110">                .thenApply(visitedLocation -&gt; {</span>
+<span class="nc" id="L111">                    return gpsServiceProxy.getAttractions()</span>
+<span class="nc" id="L112">                                          .stream()</span>
+<span class="nc" id="L113">                                          .map(attraction -&gt; {</span>
+<span class="nc" id="L114">                                              return new NearAttractionDTO(attraction.getLatitude(), attraction.getLongitude(), attraction.getAttractionName()</span>
+<span class="nc" id="L115">                                                      , Distance.getDistance(visitedLocation.getLocation(), attraction),</span>
+<span class="nc" id="L116">                                                      rewardsService.getRewardPoints(attraction.getAttractionId(), user.getUserId()));</span>
+                                          })
+<span class="nc" id="L118">                                          .sorted(Comparator.comparingInt(NearAttractionDTO::getRewardPoints))</span>
+<span class="nc" id="L119">                                          .limit(NUMBER_OF_NEAR_ATTRACTIONS)</span>
+<span class="nc" id="L120">                                          .collect(Collectors.toList());</span>
+<span class="nc" id="L121">                }).join();</span>
+    }
+
+    public Map&lt;String, Location&gt; getAllUsersLocation() {
+
+<span class="nc" id="L126">        Map&lt;String, Location&gt; userLocations = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L127">        getAllUsers().forEach(u -&gt;</span>
+<span class="nc" id="L128">                getUserLocation(u).thenAccept(vl -&gt;</span>
+<span class="nc" id="L129">                        userLocations.put(u.getUserId().toString(), vl.getLocation())).join());</span>
+
+<span class="nc" id="L131">        return userLocations;</span>
+    }
+
+
+    private void addShutDownHook() {
+
+<span class="fc" id="L137">        Runtime.getRuntime().addShutdownHook(new Thread() {</span>
+
+            public void run() {
+
+<span class="fc" id="L141">                tracker.stopTracking();</span>
+<span class="fc" id="L142">            }</span>
+        });
+<span class="fc" id="L144">    }</span>
+
+    public List&lt;User&gt; getAllUsers() {
+
+<span class="fc" id="L148">        return userService.getAllUsers();</span>
+    }
+
+
+    public List&lt;Provider&gt; getTripDeals(User user) {
+
+<span class="nc" id="L154">        return tripPricerService.getTripDeals(user);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
