@@ -18,6 +18,10 @@ public class NearAttractionDTO extends Location {
         this.rewardPoints   = rewardPoints;
     }
 
+    public NearAttractionDTO() {
+
+    }
+
     public String getAttractionName() {
 
         return attractionName;

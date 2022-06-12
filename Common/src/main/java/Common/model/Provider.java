@@ -14,6 +14,10 @@ public class Provider {
         this.tripId = tripId;
     }
 
+    public Provider() {
+
+    }
+
     public String getName() {
 
         return name;

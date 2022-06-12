@@ -14,6 +14,10 @@ public class VisitedLocation {
         this.timeVisited = timeVisited;
     }
 
+    public VisitedLocation() {
+
+    }
+
     public UUID getUserId() {
 
         return userId;

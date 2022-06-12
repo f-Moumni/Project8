@@ -27,6 +27,10 @@ public class UserDTO {
 		this.emailAddress = emailAddress;
 	}
 
+	public UserDTO() {
+
+	}
+
 	public UUID getUserId() {
 
 		return userId;

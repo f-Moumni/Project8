@@ -9,6 +9,10 @@ public class Attraction extends Location {
     private String state;
     private UUID attractionId;
 
+    public Attraction() {
+
+    }
+
     public Attraction(double latitude, double longitude, String attractionName, String city, String state, UUID attractionId) {
         super(latitude, longitude);
         this.attractionName = attractionName;

@@ -23,7 +23,11 @@ public class User {
 		this.phoneNumber = phoneNumber;
 		this.emailAddress = emailAddress;
 	}
-	
+
+	public User() {
+
+	}
+
 	public UUID getUserId() {
 		return userId;
 	}
