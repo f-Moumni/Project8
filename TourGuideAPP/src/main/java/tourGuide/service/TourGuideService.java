@@ -5,18 +5,19 @@ import Common.model.Location;
 import Common.model.User;
 import Common.model.UserReward;
 import Common.model.VisitedLocation;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import tourGuide.proxy.GpsProxy;
+import tourGuide.proxies.GpsServiceProxy;
 import tourGuide.tracker.Tracker;
 import tourGuide.utils.Distance;
 import tripPricer.Provider;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -28,20 +29,19 @@ import static tourGuide.constant.Constant.NUMBER_OF_NEAR_ATTRACTIONS;
 @Service
 public class TourGuideService {
 
-    private final Logger            logger = LoggerFactory.getLogger(TourGuideService.class);
-    public final  Tracker        tracker;
-    private final GpsProxy       gpsProxy;
+    public final  Tracker tracker;
+    private final Logger  logger = LoggerFactory.getLogger(TourGuideService.class);
+    private final GpsServiceProxy gpsServiceProxy;
     private final RewardsService rewardsService;
-    private final UserService       userService;
+    private final UserService userService;
     private final TripPricerService tripPricerService;
     ExecutorService service  = Executors.newFixedThreadPool(100);
     boolean         testMode = true;
 
-
     @Autowired
-    public TourGuideService(GpsProxy gpsProxy, RewardsService rewardsService, UserService userService, TripPricerService tripPricerService) {
+    public TourGuideService(GpsServiceProxy gpsServiceProxy, RewardsService rewardsService, UserService userService, TripPricerService tripPricerService) {
 
-        this.gpsProxy        = gpsProxy;
+        this.gpsServiceProxy   = gpsServiceProxy;
         this.rewardsService    = rewardsService;
         this.userService       = userService;
         this.tripPricerService = tripPricerService;
@@ -75,7 +75,7 @@ public class TourGuideService {
     public CompletableFuture<VisitedLocation> trackUserLocation(User user) {
 
         return CompletableFuture.supplyAsync(() ->
-                gpsProxy.getUserLocation(user.getUserId()),service).thenApply(visitedLocation -> {
+                gpsServiceProxy.getUserLocation(user.getUserId()), service).thenApply(visitedLocation -> {
             calculateRewards(user);
             return visitedLocation;
         });
@@ -108,16 +108,16 @@ public class TourGuideService {
         User user = userService.getUser(userName);
         return getUserLocation(user)
                 .thenApply(visitedLocation -> {
-                    return gpsProxy.getAttractions()
-                                     .stream()
-                                     .map(attraction -> {
-                                         return new NearAttractionDTO(attraction.getLatitude(), attraction.getLongitude(), attraction.getAttractionName()
-                                                 , Distance.getDistance(visitedLocation.getLocation(), attraction),
-                                                 rewardsService.getRewardPoints(attraction.getAttractionId(), user.getUserId()));
-                                     })
-                                     .sorted(Comparator.comparingInt(NearAttractionDTO::getRewardPoints))
-                                     .limit(NUMBER_OF_NEAR_ATTRACTIONS)
-                                     .collect(Collectors.toList());
+                    return gpsServiceProxy.getAttractions()
+                                          .stream()
+                                          .map(attraction -> {
+                                              return new NearAttractionDTO(attraction.getLatitude(), attraction.getLongitude(), attraction.getAttractionName()
+                                                      , Distance.getDistance(visitedLocation.getLocation(), attraction),
+                                                      rewardsService.getRewardPoints(attraction.getAttractionId(), user.getUserId()));
+                                          })
+                                          .sorted(Comparator.comparingInt(NearAttractionDTO::getRewardPoints))
+                                          .limit(NUMBER_OF_NEAR_ATTRACTIONS)
+                                          .collect(Collectors.toList());
                 }).join();
     }
 

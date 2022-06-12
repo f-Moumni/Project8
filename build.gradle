@@ -22,9 +22,7 @@ bootJar {
 
 repositories {
     mavenCentral()
-    flatDir {
-        dirs 'libs'
-    }
+
 }
 
 sourceCompatibility = '11'
@@ -37,10 +35,9 @@ dependencies {
     implementation group: 'com.jsoniter', name: 'jsoniter', version: '0.9.23'
     implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.1'
     implementation (project(":Common"))
-    implementation(name: 'RewardCentral', ext: 'jar')
-    implementation(name: 'TripPricer', ext: 'jar')
 
-    testImplementation("junit:junit")
+
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
     testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.7.0'
 }
 

@@ -1,11 +1,10 @@
 package tourGuide.service;
 
 import Common.model.*;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import rewardCentral.RewardCentral;
-
-import tourGuide.proxy.GpsProxy;
+import tourGuide.proxies.GpsServiceProxy;
 import tourGuide.utils.Distance;
 
 import java.util.List;
@@ -18,31 +17,27 @@ import java.util.stream.Collectors;
 @Service
 public class RewardsService {
 
-    private final GpsProxy      gpsProxy;
-    private final RewardCentral rewardsCentral = new RewardCentral();
-    public        ExecutorService service = Executors.newCachedThreadPool();
-
+    private final RewardCentral   rewardsCentral = new RewardCentral();
+    public        ExecutorService service        = Executors.newCachedThreadPool();
+    @Autowired
+    private       GpsServiceProxy gpsServiceProxy;
     // proximity in miles
     private int defaultProximityBuffer   = 10;
     private int proximityBuffer          = defaultProximityBuffer;
     private int attractionProximityRange = 200;
 
-    public RewardsService(GpsProxy gpsProxy) {
-        this.gpsProxy     = gpsProxy;
-
-    }
 
     public CompletableFuture<Void> calculateRewards(User user) {
 
         final List<VisitedLocation> userLocations = user.getVisitedLocations();
-     final    List<UserReward>      userRewards   = user.getUserRewards();
-      final  List<Attraction> attractions = gpsProxy.getAttractions()
-                                                      .parallelStream()
-                                                      .filter(a -> userRewards.stream()
-                                                                         .noneMatch(r -> r.getAttraction()
-                                                                                          .getAttractionName()
-                                                                                          .equals(a.getAttractionName())))
-                                                      .collect(Collectors.toList());
+        final List<UserReward>      userRewards   = user.getUserRewards();
+        final List<Attraction> attractions = gpsServiceProxy.getAttractions()
+                                                     .parallelStream()
+                                                     .filter(a -> userRewards.stream()
+                                                                             .noneMatch(r -> r.getAttraction()
+                                                                                              .getAttractionName()
+                                                                                              .equals(a.getAttractionName())))
+                                                     .collect(Collectors.toList());
         return CompletableFuture.runAsync(() -> {
             userLocations.forEach(vl -> attractions.stream().forEach(a -> {
                 if (isNearAttraction(vl, a)) {

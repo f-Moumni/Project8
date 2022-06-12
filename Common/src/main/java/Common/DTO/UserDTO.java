@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.UUID;
 
 public class UserDTO {
-	private final UUID userId;
-	private final String userName;
+	private  UUID userId;
+	private  String userName;
 	private String phoneNumber;
 	private String emailAddress;
 	private Date                  latestLocationTimestamp;
