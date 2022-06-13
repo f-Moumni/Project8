@@ -1,5 +1,23 @@
 package tourGuide;
 
+import Common.model.Attraction;
+import Common.model.User;
+import Common.model.VisitedLocation;
+import org.apache.commons.lang3.time.StopWatch;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+
+
+import tourGuide.proxies.GpsServiceProxy;
+import tourGuide.proxies.TripPricerServiceProxy;
+import tourGuide.service.RewardsService;
+import tourGuide.service.TourGuideService;
+import tourGuide.service.UserService;
+import tourGuide.utils.InternalTestHelper;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -7,44 +25,27 @@ import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import Common.model.Attraction;
-import Common.model.User;
-import Common.model.VisitedLocation;
-import org.apache.commons.lang3.time.StopWatch;
-
-
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import tourGuide.proxies.GpsServiceProxy;
-import tourGuide.service.RewardsService;
-import tourGuide.service.TourGuideService;
-import tourGuide.service.TripPricerService;
-import tourGuide.service.UserService;
-import tourGuide.utils.InternalTestHelper;
-
-
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 public class TestPerformance {
-@Autowired
-  private   GpsServiceProxy gpsServiceProxy;
+
     @Autowired
-   private UserService      userService;
+    private GpsServiceProxy        gpsServiceProxy;
     @Autowired
-  private  TripPricerService tripPricerService;
-   private  StopWatch         stopWatch;
+    private UserService            userService;
     @Autowired
-   private RewardsService    rewardsService;
-  private  TourGuideService  tourGuideService;
+    private TripPricerServiceProxy tripPricerServiceProxy;
+    @Autowired
+    private RewardsService         rewardsService;
+    private StopWatch              stopWatch;
+    private TourGuideService tourGuideService;
 
     @BeforeEach
     public void init() {
 
+        stopWatch = new StopWatch();
 
         Locale.setDefault(new Locale.Builder().setLanguage("en").setRegion("US").build());
     }
@@ -69,16 +70,14 @@ public class TestPerformance {
      */
 
 
-
     @Test
     public void highVolumeTrackLocation() {
 
         // Users should be incremented up to 100,000, and test finishes within 15 minutes
         InternalTestHelper.setInternalUserNumber(100000);
 
-        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, tripPricerService);
-        List<User> allUsers = new ArrayList<>();
-        allUsers = tourGuideService.getAllUsers();
+        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, tripPricerServiceProxy);
+        List<User> allUsers = tourGuideService.getAllUsers();
         List<CompletableFuture<VisitedLocation>> tasksFuture = new ArrayList<>();
         StopWatch                                stopWatch   = new StopWatch();
         stopWatch.start();
@@ -92,9 +91,9 @@ public class TestPerformance {
 
         stopWatch.stop();
         tourGuideService.tracker.stopTracking();
+        assertTrue(allFutures.isDone());
         System.out.println("highVolumeTrackLocation: Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
-       assertTrue(allFutures.isDone());
-       assertTrue(TimeUnit.MINUTES.toSeconds(15) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
+        assertTrue(TimeUnit.MINUTES.toSeconds(15) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
     }
 
 
@@ -106,7 +105,7 @@ public class TestPerformance {
         // Users should be incremented up to 100,000, and test finishes within 20 minutes
 
         InternalTestHelper.setInternalUserNumber(100000);
-        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, tripPricerService);
+        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, tripPricerServiceProxy);
 
         Attraction attraction = gpsServiceProxy.getAttractions().get(0);
 
@@ -126,11 +125,11 @@ public class TestPerformance {
         System.out.println(allUsers.size());
         allUsers.forEach(user -> {
             assertNotEquals(0, user.getUserRewards().get(0).getRewardPoints());
-           assertTrue(user.getUserRewards().size() > 0);
+            assertTrue(user.getUserRewards().size() > 0);
         });
         stopWatch.stop();
-        System.out.println("highVolumeGetRewards: Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
         assertTrue(allFutures.isDone());
+        System.out.println("highVolumeGetRewards: Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
         assertTrue(TimeUnit.MINUTES.toSeconds(20) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch
                 .getTime()));
 

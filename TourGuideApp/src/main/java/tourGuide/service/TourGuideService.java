@@ -1,18 +1,15 @@
 package tourGuide.service;
 
 import Common.DTO.NearAttractionDTO;
-import Common.model.Location;
-import Common.model.User;
-import Common.model.UserReward;
-import Common.model.VisitedLocation;
+import Common.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tourGuide.proxies.GpsServiceProxy;
+import tourGuide.proxies.TripPricerServiceProxy;
 import tourGuide.tracker.Tracker;
 import tourGuide.utils.Distance;
-import tripPricer.Provider;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -29,22 +26,22 @@ import static tourGuide.constant.Constant.NUMBER_OF_NEAR_ATTRACTIONS;
 @Service
 public class TourGuideService {
 
-    public final  Tracker tracker;
-    private final Logger  logger = LoggerFactory.getLogger(TourGuideService.class);
-    private final GpsServiceProxy gpsServiceProxy;
-    private final RewardsService rewardsService;
-    private final UserService userService;
-    private final TripPricerService tripPricerService;
+    public final  Tracker                tracker;
+    private final Logger                 logger = LoggerFactory.getLogger(TourGuideService.class);
+    private final GpsServiceProxy        gpsServiceProxy;
+    private final RewardsService         rewardsService;
+    private final UserService            userService;
+    private final TripPricerServiceProxy pricerServiceProxy;
     ExecutorService service  = Executors.newFixedThreadPool(100);
     boolean         testMode = true;
 
     @Autowired
-    public TourGuideService(GpsServiceProxy gpsServiceProxy, RewardsService rewardsService, UserService userService, TripPricerService tripPricerService) {
+    public TourGuideService(GpsServiceProxy gpsServiceProxy, RewardsService rewardsService, UserService userService, TripPricerServiceProxy tripPricerServiceProxy) {
 
-        this.gpsServiceProxy   = gpsServiceProxy;
-        this.rewardsService    = rewardsService;
-        this.userService       = userService;
-        this.tripPricerService = tripPricerService;
+        this.gpsServiceProxy    = gpsServiceProxy;
+        this.rewardsService     = rewardsService;
+        this.userService        = userService;
+        this.pricerServiceProxy = tripPricerServiceProxy;
         if (testMode) {
             logger.info("TestMode enabled");
             logger.debug("Initializing users");
@@ -150,7 +147,8 @@ public class TourGuideService {
 
 
     public List<Provider> getTripDeals(User user) {
-
-        return tripPricerService.getTripDeals(user);
+        List<Provider> providers= pricerServiceProxy.getTripDeals(user);
+        user.setTripDeals(providers);
+        return providers;
     }
 }

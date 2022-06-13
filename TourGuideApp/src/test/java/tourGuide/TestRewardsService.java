@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import tourGuide.proxies.GpsServiceProxy;
+import tourGuide.proxies.TripPricerServiceProxy;
 import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
-import tourGuide.service.TripPricerService;
 import tourGuide.service.UserService;
 import tourGuide.utils.InternalTestHelper;
 
@@ -33,11 +33,11 @@ public class TestRewardsService {
     @Autowired
     private GpsServiceProxy   gpsServiceProxy;
     @Autowired
-    private UserService       userService;
+    private UserService            userService;
     @Autowired
-    private TripPricerService tripPricerService;
+    private TripPricerServiceProxy tripPricerServiceProxy;
     @Autowired
-    private RewardsService   rewardsService;
+    private RewardsService         rewardsService;
 
     private TourGuideService tourGuideService;
 
@@ -51,7 +51,7 @@ public class TestRewardsService {
     public void userGetRewards() throws ExecutionException, InterruptedException {
 
         InternalTestHelper.setInternalUserNumber(0);
-        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, tripPricerService);
+        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, tripPricerServiceProxy);
         User       user       = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         Attraction attraction = gpsServiceProxy.getAttractions().get(0);
         user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
@@ -75,7 +75,7 @@ public class TestRewardsService {
         rewardsService.setProximityBuffer(Integer.MAX_VALUE);
 
         InternalTestHelper.setInternalUserNumber(1);
-        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, tripPricerService);
+        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, tripPricerServiceProxy);
 
         rewardsService.calculateRewards(userService.getAllUsers().get(0));
         List<UserReward> userRewards = tourGuideService.getUserRewards(userService.getAllUsers().get(0));

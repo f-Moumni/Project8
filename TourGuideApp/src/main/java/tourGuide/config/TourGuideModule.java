@@ -2,16 +2,17 @@ package tourGuide.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import tripPricer.TripPricer;
+
+import java.util.Locale;
 
 
 @Configuration
 public class TourGuideModule {
 
 	@Bean
-	public TripPricer getTripPricer(){
-
-		return new TripPricer();
+	public Locale getLocale() {
+		Locale.setDefault(Locale.US);
+		return Locale.getDefault();
 	}
 
 	

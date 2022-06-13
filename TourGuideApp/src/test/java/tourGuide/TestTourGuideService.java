@@ -10,6 +10,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import Common.DTO.NearAttractionDTO;
+import Common.model.Provider;
 import Common.model.User;
 import Common.model.VisitedLocation;
 
@@ -19,13 +20,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import tourGuide.proxies.GpsServiceProxy;
+import tourGuide.proxies.TripPricerServiceProxy;
 import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
-import tourGuide.service.TripPricerService;
 import tourGuide.service.UserService;
 import tourGuide.utils.InternalTestHelper;
 
-import tripPricer.Provider;
+
 
 @SpringBootTest
 public class TestTourGuideService {
@@ -35,9 +36,9 @@ public class TestTourGuideService {
     @Autowired
     private GpsServiceProxy   gpsServiceProxy;
     @Autowired
-    private UserService       userService;
+    private UserService            userService;
     @Autowired
-    private TripPricerService tripPricerService;
+    private TripPricerServiceProxy pricerServiceProxy;
 
     @Autowired
     private RewardsService   rewardsService;
@@ -53,7 +54,7 @@ public class TestTourGuideService {
     public void getUserLocation() throws ExecutionException, InterruptedException {
 
         InternalTestHelper.setInternalUserNumber(0);
-        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, tripPricerService);
+        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, pricerServiceProxy);
 
         User            user            = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user).get();
@@ -66,7 +67,7 @@ public class TestTourGuideService {
 
 
         InternalTestHelper.setInternalUserNumber(0);
-        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, tripPricerService);
+        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, pricerServiceProxy);
 
         User user  = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         User user2 = new User(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
@@ -87,7 +88,7 @@ public class TestTourGuideService {
     public void getAllUsers() {
 
         InternalTestHelper.setInternalUserNumber(0);
-        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, tripPricerService);
+        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, pricerServiceProxy);
 
         User user  = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         User user2 = new User(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
@@ -108,7 +109,7 @@ public class TestTourGuideService {
 
 
         InternalTestHelper.setInternalUserNumber(0);
-        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, tripPricerService);
+        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, pricerServiceProxy);
 
         User         user            = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user).get();
@@ -124,7 +125,7 @@ public class TestTourGuideService {
 
 
         InternalTestHelper.setInternalUserNumber(0);
-        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, tripPricerService);
+        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, pricerServiceProxy);
 
         User        user            = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user).get();
@@ -141,11 +142,11 @@ public class TestTourGuideService {
 
 
         InternalTestHelper.setInternalUserNumber(0);
-        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, tripPricerService);
+        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, pricerServiceProxy);
 
         User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 
-        List<Provider> providers = tripPricerService.getTripDeals(user);
+        List<Provider> providers = tourGuideService.getTripDeals(user);
 
         tourGuideService.tracker.stopTracking();
 

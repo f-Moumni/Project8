@@ -13,4 +13,5 @@ include 'Common'
 include 'Rewards'
 include 'TourGuideApp'
 include 'Rewards'
+include 'TripPricer'
 

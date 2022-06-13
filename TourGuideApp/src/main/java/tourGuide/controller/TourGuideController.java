@@ -1,12 +1,13 @@
 package tourGuide.controller;
 
+import Common.model.Provider;
 import com.jsoniter.output.JsonStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import tourGuide.service.TourGuideService;
-import tripPricer.Provider;
+
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -15,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 public class TourGuideController {
 
     @Autowired
-    TourGuideService tourGuideService;
+    private TourGuideService tourGuideService;
 
     @RequestMapping("/")
     public String index() {
@@ -23,7 +24,7 @@ public class TourGuideController {
         return "Greetings from TourGuide!";
     }
 
-    @RequestMapping("/getLocation")
+    @RequestMapping("/Location")
     public String getLocation(@RequestParam String userName) throws ExecutionException, InterruptedException {
 
         return tourGuideService.getUserLocation(tourGuideService.getUser(userName))
@@ -31,19 +32,19 @@ public class TourGuideController {
 
     }
 
-    @RequestMapping("/getNearbyAttractions")
+    @RequestMapping("/NearbyAttractions")
     public String getNearbyAttractions(@RequestParam String userName) {
 
         return JsonStream.serialize(tourGuideService.getNearAttractions(userName));
     }
 
-    @RequestMapping("/getRewards")
+    @RequestMapping("/Rewards")
     public String getRewards(@RequestParam String userName) {
 
         return JsonStream.serialize(tourGuideService.getUserRewards(tourGuideService.getUser(userName)));
     }
 
-    @RequestMapping("/getAllCurrentLocations")
+    @RequestMapping("/AllCurrentLocations")
     public String getAllCurrentLocations() {
         // TODO: Get a list of every user's most recent location as JSON
         //- Note: does not use gpsUtil to query for their current location,
@@ -58,7 +59,7 @@ public class TourGuideController {
         return JsonStream.serialize(tourGuideService.getAllUsersLocation());
     }
 
-       @RequestMapping("/getTripDeals")
+       @RequestMapping("/tripDeals")
         public String getTripDeals(@RequestParam String userName) {
             List<Provider> providers = tourGuideService.getTripDeals(tourGuideService.getUser(userName));
             return JsonStream.serialize(providers);
