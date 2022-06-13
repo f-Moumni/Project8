@@ -147,7 +147,11 @@ public class TourGuideService {
 
 
     public List<Provider> getTripDeals(User user) {
-        List<Provider> providers= pricerServiceProxy.getTripDeals(user);
+
+        int cumulativeRewardPoints = user.getUserRewards().stream().mapToInt(UserReward::getRewardPoints).sum();
+        List<Provider> providers = pricerServiceProxy.getTripDeals(user.getUserId(),
+                user.getUserPreferences().getNumberOfAdults(), user.getUserPreferences().getNumberOfAdults(),
+                user.getUserPreferences().getTripDuration(), cumulativeRewardPoints);
         user.setTripDeals(providers);
         return providers;
     }

@@ -1,14 +1,13 @@
 package pricer.service;
 
 
-import Common.model.User;
 import Common.model.UserReward;
 import org.springframework.stereotype.Service;
-
 import tripPricer.Provider;
 import tripPricer.TripPricer;
 
 import java.util.List;
+import java.util.UUID;
 
 import static pricer.constants.PricerConstant.TRIP_PRICER_API_KEY;
 
@@ -18,13 +17,9 @@ public class TripPricerService {
     private final TripPricer tripPricer = new TripPricer();
 
 
-    public List<Provider> getTripDeals(User user) {
+    public List<Provider> getPricer(UUID userId, int numberOfAdults, int numberOfChildren,int tripDuration,int rewardPoints ) {
 
-        int cumulativeRewardPoints = user.getUserRewards().stream().mapToInt(UserReward::getRewardPoints).sum();
         // user.setTripDeals(providers);
-        return tripPricer.getPrice(TRIP_PRICER_API_KEY, user.getUserId(), user.getUserPreferences()
-                                                                              .getNumberOfAdults(),
-                user.getUserPreferences().getNumberOfChildren(), user.getUserPreferences()
-                                                                     .getTripDuration(), cumulativeRewardPoints);
+        return tripPricer.getPrice(TRIP_PRICER_API_KEY, userId, numberOfAdults, numberOfChildren, tripDuration, rewardPoints);
     }
 }
