@@ -10,9 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 
-
-import tourGuide.proxies.GpsServiceProxy;
 import tourGuide.proxies.TripPricerServiceProxy;
+import tourGuide.service.GpsUtilService;
 import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
 import tourGuide.service.UserService;
@@ -32,9 +31,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class TestPerformance {
 
     @Autowired
-    private GpsServiceProxy        gpsServiceProxy;
+    private GpsUtilService gpsUtilService;
     @Autowired
-    private UserService            userService;
+    private UserService    userService;
     @Autowired
     private TripPricerServiceProxy tripPricerServiceProxy;
     @Autowired
@@ -76,7 +75,7 @@ public class TestPerformance {
         // Users should be incremented up to 100,000, and test finishes within 15 minutes
         InternalTestHelper.setInternalUserNumber(100000);
 
-        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, tripPricerServiceProxy);
+        tourGuideService = new TourGuideService(gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
         List<User> allUsers = tourGuideService.getAllUsers();
         List<CompletableFuture<VisitedLocation>> tasksFuture = new ArrayList<>();
         StopWatch                                stopWatch   = new StopWatch();
@@ -104,10 +103,10 @@ public class TestPerformance {
 
         // Users should be incremented up to 100,000, and test finishes within 20 minutes
 
-        InternalTestHelper.setInternalUserNumber(100000);
-        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, tripPricerServiceProxy);
+        InternalTestHelper.setInternalUserNumber(10000);
+        tourGuideService = new TourGuideService(gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
 
-        Attraction attraction = gpsServiceProxy.getAttractions().get(0);
+        Attraction attraction = gpsUtilService.getAttractions().get(0);
 
         List<User> allUsers = tourGuideService.getAllUsers();
         allUsers.forEach(u -> u.addToVisitedLocations(new VisitedLocation(u.getUserId(), attraction, new Date())));

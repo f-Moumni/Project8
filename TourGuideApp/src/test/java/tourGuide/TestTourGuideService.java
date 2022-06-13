@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import tourGuide.proxies.GpsServiceProxy;
 import tourGuide.proxies.TripPricerServiceProxy;
+import tourGuide.service.GpsUtilService;
 import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
 import tourGuide.service.UserService;
@@ -32,13 +33,13 @@ import tourGuide.utils.InternalTestHelper;
 public class TestTourGuideService {
 
 
-  private GpsServiceProxy gpsProxy;
+  private   GpsUtilService  gpsUtilService;
     @Autowired
-    private GpsServiceProxy   gpsServiceProxy;
+    private GpsServiceProxy gpsServiceProxy;
     @Autowired
     private UserService            userService;
     @Autowired
-    private TripPricerServiceProxy pricerServiceProxy;
+    private TripPricerServiceProxy tripPricerServiceProxy;
 
     @Autowired
     private RewardsService   rewardsService;
@@ -54,7 +55,7 @@ public class TestTourGuideService {
     public void getUserLocation() throws ExecutionException, InterruptedException {
 
         InternalTestHelper.setInternalUserNumber(0);
-        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, pricerServiceProxy);
+        tourGuideService = new TourGuideService(gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
 
         User            user            = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user).get();
@@ -67,7 +68,7 @@ public class TestTourGuideService {
 
 
         InternalTestHelper.setInternalUserNumber(0);
-        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, pricerServiceProxy);
+        tourGuideService = new TourGuideService(gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
 
         User user  = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         User user2 = new User(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
@@ -88,7 +89,7 @@ public class TestTourGuideService {
     public void getAllUsers() {
 
         InternalTestHelper.setInternalUserNumber(0);
-        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, pricerServiceProxy);
+        tourGuideService = new TourGuideService(gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
 
         User user  = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         User user2 = new User(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
@@ -109,7 +110,7 @@ public class TestTourGuideService {
 
 
         InternalTestHelper.setInternalUserNumber(0);
-        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, pricerServiceProxy);
+        tourGuideService = new TourGuideService(gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
 
         User         user            = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user).get();
@@ -125,7 +126,7 @@ public class TestTourGuideService {
 
 
         InternalTestHelper.setInternalUserNumber(0);
-        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, pricerServiceProxy);
+        tourGuideService = new TourGuideService(gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
 
         User        user            = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user).get();
@@ -142,7 +143,7 @@ public class TestTourGuideService {
 
 
         InternalTestHelper.setInternalUserNumber(0);
-        tourGuideService = new TourGuideService(gpsServiceProxy, rewardsService, userService, pricerServiceProxy);
+        tourGuideService = new TourGuideService(gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
 
         User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 
