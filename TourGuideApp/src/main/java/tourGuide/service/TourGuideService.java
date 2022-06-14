@@ -6,10 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import tourGuide.proxies.GpsServiceProxy;
 import tourGuide.proxies.TripPricerServiceProxy;
 import tourGuide.tracker.Tracker;
 import tourGuide.utils.Distance;
+import tourGuide.utils.Initializer;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -25,7 +25,8 @@ import static tourGuide.constant.Constant.NUMBER_OF_NEAR_ATTRACTIONS;
 
 @Service
 public class TourGuideService {
-
+@Autowired
+    private final Initializer initializer;
     public final  Tracker                tracker;
     private final Logger         logger = LoggerFactory.getLogger(TourGuideService.class);
     private final GpsUtilService gpsUtilService;
@@ -33,21 +34,19 @@ public class TourGuideService {
     private final UserService            userService;
     private final TripPricerServiceProxy pricerServiceProxy;
     ExecutorService service  = Executors.newFixedThreadPool(100);
-    boolean         testMode = true;
+ //   boolean         testMode = true;
 
     @Autowired
-    public TourGuideService(GpsUtilService gpsServiceProxy, RewardsService rewardsService, UserService userService, TripPricerServiceProxy tripPricerServiceProxy) {
+    public TourGuideService(Initializer initializer, GpsUtilService gpsServiceProxy, RewardsService rewardsService, UserService userService, TripPricerServiceProxy tripPricerServiceProxy) {
 
+        this.initializer = initializer;
         this.gpsUtilService = gpsServiceProxy;
         this.rewardsService = rewardsService;
         this.userService        = userService;
         this.pricerServiceProxy = tripPricerServiceProxy;
-        if (testMode) {
-            logger.info("TestMode enabled");
-            logger.debug("Initializing users");
-            userService.initializeInternalUsers();
-            logger.debug("Finished initializing users");
-        }
+
+            this.initializer.initializeInternalUsers();
+
         tracker = new Tracker(this);
         addShutDownHook();
     }

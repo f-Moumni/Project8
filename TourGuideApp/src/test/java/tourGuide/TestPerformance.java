@@ -10,11 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 
+import org.springframework.test.context.ActiveProfiles;
 import tourGuide.proxies.TripPricerServiceProxy;
 import tourGuide.service.GpsUtilService;
 import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
 import tourGuide.service.UserService;
+import tourGuide.utils.Initializer;
 import tourGuide.utils.InternalTestHelper;
 
 import java.util.ArrayList;
@@ -26,10 +28,11 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
+@ActiveProfiles("test")
 @SpringBootTest
 public class TestPerformance {
-
+    @Autowired
+    private Initializer    initializer;
     @Autowired
     private GpsUtilService gpsUtilService;
     @Autowired
@@ -75,7 +78,7 @@ public class TestPerformance {
         // Users should be incremented up to 100,000, and test finishes within 15 minutes
         InternalTestHelper.setInternalUserNumber(100000);
 
-        tourGuideService = new TourGuideService(gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
+        tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
         List<User> allUsers = tourGuideService.getAllUsers();
         List<CompletableFuture<VisitedLocation>> tasksFuture = new ArrayList<>();
         StopWatch                                stopWatch   = new StopWatch();
@@ -103,8 +106,8 @@ public class TestPerformance {
 
         // Users should be incremented up to 100,000, and test finishes within 20 minutes
 
-        InternalTestHelper.setInternalUserNumber(10000);
-        tourGuideService = new TourGuideService(gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
+        InternalTestHelper.setInternalUserNumber(100000);
+        tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
 
         Attraction attraction = gpsUtilService.getAttractions().get(0);
 
