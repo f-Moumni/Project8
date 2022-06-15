@@ -17,7 +17,7 @@ apply plugin: "jacoco"
 
 bootJar {
     baseName = 'tourGuide'
-    version = '1.0.0-Snapshot'
+    version = '0.0.1-SNAPSHOT'
 }
 
 repositories {
@@ -57,11 +57,7 @@ jacocoTestReport {
 
 test.finalizedBy jacocoTestReport
 check.dependsOn jacocoTestCoverageVerification
-jar {
-    manifest {
-        attributes 'Main-Class': 'tourGuide.Application'
-    }
-}
+
 jacocoTestCoverageVerification {
     violationRules {
         rule {

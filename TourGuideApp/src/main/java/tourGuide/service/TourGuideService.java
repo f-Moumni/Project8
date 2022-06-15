@@ -25,28 +25,27 @@ import static tourGuide.constant.Constant.NUMBER_OF_NEAR_ATTRACTIONS;
 
 @Service
 public class TourGuideService {
-@Autowired
-    private final Initializer initializer;
+
     public final  Tracker                tracker;
-    private final Logger         logger = LoggerFactory.getLogger(TourGuideService.class);
-    private final GpsUtilService gpsUtilService;
-    private final RewardsService rewardsService;
+    @Autowired
+    private final Initializer            initializer;
+    private final Logger                 logger = LoggerFactory.getLogger(TourGuideService.class);
+    private final GpsUtilService         gpsUtilService;
+    private final RewardsService         rewardsService;
     private final UserService            userService;
     private final TripPricerServiceProxy pricerServiceProxy;
-    ExecutorService service  = Executors.newFixedThreadPool(100);
- //   boolean         testMode = true;
+    ExecutorService service = Executors.newFixedThreadPool(100);
+
 
     @Autowired
     public TourGuideService(Initializer initializer, GpsUtilService gpsServiceProxy, RewardsService rewardsService, UserService userService, TripPricerServiceProxy tripPricerServiceProxy) {
 
-        this.initializer = initializer;
-        this.gpsUtilService = gpsServiceProxy;
-        this.rewardsService = rewardsService;
+        this.initializer        = initializer;
+        this.gpsUtilService     = gpsServiceProxy;
+        this.rewardsService     = rewardsService;
         this.userService        = userService;
         this.pricerServiceProxy = tripPricerServiceProxy;
-
-            this.initializer.initializeInternalUsers();
-
+        this.initializer.initializeInternalUsers();
         tracker = new Tracker(this);
         addShutDownHook();
     }
@@ -96,8 +95,6 @@ public class TourGuideService {
      *
      * @return list off near attractions
      *
-     * @throws ExecutionException
-     * @throws InterruptedException
      */
     public List<NearAttractionDTO> getNearAttractions(String userName) {
 
@@ -107,11 +104,11 @@ public class TourGuideService {
                     return gpsUtilService.getAttractions()
                                          .stream()
                                          .map(attraction -> {
-                                              return new NearAttractionDTO(attraction.getLatitude(), attraction.getLongitude(), attraction.getAttractionName()
-                                                      , Distance.getDistance(visitedLocation.getLocation(), attraction),
-                                                      rewardsService.getRewardPoints(attraction.getAttractionId(), user.getUserId()));
-                                          })
-                                         .sorted(Comparator.comparingInt(NearAttractionDTO::getRewardPoints))
+                                             return new NearAttractionDTO(attraction.getLatitude(), attraction.getLongitude(), attraction.getAttractionName()
+                                                     , Distance.getDistance(visitedLocation.getLocation(), attraction),
+                                                     rewardsService.getRewardPoints(attraction.getAttractionId(), user.getUserId()));
+                                         })
+                                         .sorted(Comparator.comparingDouble(NearAttractionDTO::getDistance))
                                          .limit(NUMBER_OF_NEAR_ATTRACTIONS)
                                          .collect(Collectors.toList());
                 }).join();

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import tourGuide.proxies.GpsServiceProxy;
+import org.springframework.test.context.ActiveProfiles;
 import tourGuide.proxies.TripPricerServiceProxy;
 import tourGuide.service.GpsUtilService;
 import tourGuide.service.RewardsService;
@@ -26,15 +26,13 @@ import java.util.concurrent.ExecutionException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
+@ActiveProfiles("test")
 @SpringBootTest
 public class TestTourGuideService {
 
     @Autowired
     private Initializer            initializer;
     private GpsUtilService         gpsUtilService;
-   // @Autowired
-   // private GpsServiceProxy        gpsServiceProxy;
     @Autowired
     private UserService            userService;
     @Autowired

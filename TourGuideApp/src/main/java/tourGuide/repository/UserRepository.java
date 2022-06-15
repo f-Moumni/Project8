@@ -28,7 +28,7 @@ public class UserRepository {
 
     public List<User> findAllUsers() {
 
-        return internalUserMap.values().stream().collect(Collectors.toList());
+        return new ArrayList<>(internalUserMap.values());
     }
 
     public void saveUser(User user) {

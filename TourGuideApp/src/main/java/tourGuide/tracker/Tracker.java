@@ -15,8 +15,8 @@ import tourGuide.service.TourGuideService;
  * tracker est un thread
  */
 public class Tracker extends Thread {
-	private Logger logger = LoggerFactory.getLogger(Tracker.class);
-	private static final long trackingPollingInterval = TimeUnit.MINUTES.toSeconds(5);
+	private final        Logger LOGGER                  = LoggerFactory.getLogger(Tracker.class);
+	private static final long   trackingPollingInterval = TimeUnit.MINUTES.toSeconds(5);
 	private final ExecutorService executorService = Executors.newFixedThreadPool(200);
 	private final TourGuideService tourGuideService;
 	private boolean stop = false;
@@ -25,6 +25,7 @@ public class Tracker extends Thread {
 		this.tourGuideService = tourGuideService;
 		executorService.submit(this);
 	}
+
 	
 	/**
 	 * Assures to shut down the Tracker thread
@@ -39,19 +40,19 @@ public class Tracker extends Thread {
 		StopWatch stopWatch = new StopWatch();
 		while(true) {
 			if(Thread.currentThread().isInterrupted() || stop) {
-				logger.debug("Tracker stopping");
+				LOGGER.debug("Tracker stopping");
 				break;
 			}
 			
 			List<User> users = tourGuideService.getAllUsers();
-			logger.debug("Begin Tracker. Tracking " + users.size() + " users.");
+			LOGGER.debug("Begin Tracker. Tracking " + users.size() + " users.");
 			stopWatch.start();
 			CompletableFuture.runAsync(() -> users.forEach(tourGuideService::trackUserLocation), executorService).join();
 			stopWatch.stop();
-			logger.debug("Tracker Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds."); 
+			LOGGER.debug("Tracker Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
 			stopWatch.reset();
 			try {
-				logger.debug("Tracker sleeping");
+				LOGGER.debug("Tracker sleeping");
 				TimeUnit.SECONDS.sleep(trackingPollingInterval);
 			} catch (InterruptedException e) {
 				break;

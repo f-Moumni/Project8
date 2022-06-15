@@ -4,9 +4,8 @@ import Common.model.Attraction;
 import Common.model.VisitedLocation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import tourGuide.proxies.GpsServiceProxy;
+import tourGuide.repository.GpsUtilsRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,20 +13,13 @@ import java.util.UUID;
 public class GpsUtilService {
 
     @Autowired
-    GpsServiceProxy gpsServiceProxy;
-    private List<Attraction> attractions = new ArrayList<>();
-
-    public GpsUtilService(GpsServiceProxy gpsServiceProxy) {
-
-        this.gpsServiceProxy = gpsServiceProxy;
-        attractions      = gpsServiceProxy.getAttractions();
-    }
+    GpsUtilsRepository gpsUtilsRepository;
 
     public List<Attraction> getAttractions() {
-        return attractions;
+        return gpsUtilsRepository.getAttractions();
     }
 
     public VisitedLocation getUserLocation(UUID userId){
-        return gpsServiceProxy.getUserLocation(userId);
+        return gpsUtilsRepository.getUserLocation(userId);
     }
 }
