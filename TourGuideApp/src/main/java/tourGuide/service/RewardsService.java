@@ -16,19 +16,17 @@ import java.util.stream.Collectors;
 @Service
 public class RewardsService {
 
+    public  ExecutorService service = Executors.newFixedThreadPool(100);
 
-  //  public        ExecutorService service        = Executors.newWorkStealingPool(100);
-
-  public        ExecutorService service        = Executors.newFixedThreadPool(100);
     @Autowired
-    private       GpsUtilService  gpsUtilService;
+    private GpsUtilService  gpsUtilService;
 
     @Autowired
     private RewardsServiceProxy rewardsServiceProxy;
     // proximity in miles
-    private int defaultProximityBuffer   = 10;
-    private int proximityBuffer          = defaultProximityBuffer;
-    private int attractionProximityRange = 200;
+    private int                 defaultProximityBuffer   = 10;
+    private int                 proximityBuffer          = defaultProximityBuffer;
+    private int                 attractionProximityRange = 200;
 
 
     public CompletableFuture<Void> calculateRewards(User user) {
@@ -38,9 +36,7 @@ public class RewardsService {
         final List<Attraction> attractions = gpsUtilService.getAttractions()
                                                            .parallelStream()
                                                            .filter(a -> userRewards.stream()
-                                                                             .noneMatch(r -> r.getAttraction()
-                                                                                              .getAttractionName()
-                                                                                              .equals(a.getAttractionName())))
+                                                                                   .noneMatch(r -> r.getAttraction().getAttractionName().equals(a.getAttractionName())))
                                                            .collect(Collectors.toList());
         return CompletableFuture.runAsync(() -> {
             userLocations.forEach(vl -> attractions.stream().forEach(a -> {

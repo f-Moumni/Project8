@@ -1,9 +1,11 @@
-package tourGuide.proxies;
+package tourGuide.Integration.proxies;
 
 import Common.model.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import tourGuide.proxies.GpsServiceProxy;
+import tourGuide.proxies.TripPricerServiceProxy;
 
 import java.util.Date;
 import java.util.List;

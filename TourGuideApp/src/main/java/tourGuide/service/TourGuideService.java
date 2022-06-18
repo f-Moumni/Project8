@@ -1,22 +1,25 @@
 package tourGuide.service;
 
 import Common.DTO.NearAttractionDTO;
+import Common.DTO.UserDTO;
 import Common.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tourGuide.Exception.AlreadyExistsException;
+import tourGuide.Exception.DataNotFoundException;
 import tourGuide.proxies.TripPricerServiceProxy;
 import tourGuide.tracker.Tracker;
 import tourGuide.utils.Distance;
 import tourGuide.utils.Initializer;
+import tourGuide.utils.Mapper;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -24,24 +27,22 @@ import java.util.stream.Collectors;
 import static tourGuide.constant.Constant.NUMBER_OF_NEAR_ATTRACTIONS;
 
 @Service
-public class TourGuideService {
+public class TourGuideService implements ITourGuideService {
 
     public final  Tracker                tracker;
-    @Autowired
-    private final Initializer            initializer;
     private final Logger                 logger = LoggerFactory.getLogger(TourGuideService.class);
     private final GpsUtilService         gpsUtilService;
     private final RewardsService         rewardsService;
     private final UserService            userService;
     private final TripPricerServiceProxy pricerServiceProxy;
     ExecutorService service = Executors.newFixedThreadPool(100);
+    private       Initializer            initializer;
 
 
-    @Autowired
-    public TourGuideService(Initializer initializer, GpsUtilService gpsServiceProxy, RewardsService rewardsService, UserService userService, TripPricerServiceProxy tripPricerServiceProxy) {
+    public TourGuideService(Initializer initializer, GpsUtilService gpsUtilService, RewardsService rewardsService, UserService userService, TripPricerServiceProxy tripPricerServiceProxy) {
 
         this.initializer        = initializer;
-        this.gpsUtilService     = gpsServiceProxy;
+        this.gpsUtilService     = gpsUtilService;
         this.rewardsService     = rewardsService;
         this.userService        = userService;
         this.pricerServiceProxy = tripPricerServiceProxy;
@@ -50,16 +51,30 @@ public class TourGuideService {
         addShutDownHook();
     }
 
-    public List<UserReward> getUserRewards(User user) {
+    @Autowired
+    public TourGuideService(GpsUtilService gpsUtilService, RewardsService rewardsService, UserService userService, TripPricerServiceProxy tripPricerServiceProxy) {
 
-        return userService.getUserRewards(user);
+        this.gpsUtilService     = gpsUtilService;
+        this.rewardsService     = rewardsService;
+        this.userService        = userService;
+        this.pricerServiceProxy = tripPricerServiceProxy;
+        tracker                 = new Tracker(this);
+        addShutDownHook();
     }
 
-    public User getUser(String userName) {
+
+    @Override
+    public List<UserReward> getUserRewards(User user) {
+        return user.getUserRewards();
+    }
+
+    @Override
+    public User getUser(String userName) throws DataNotFoundException {
 
         return userService.getUser(userName);
     }
 
+    @Override
     public CompletableFuture<VisitedLocation> getUserLocation(User user) {
 
         return (user.getVisitedLocations().size() > 0) ?
@@ -67,13 +82,11 @@ public class TourGuideService {
                 : trackUserLocation(user);
     }
 
+    @Override
     public CompletableFuture<VisitedLocation> trackUserLocation(User user) {
 
         return CompletableFuture.supplyAsync(() ->
-                gpsUtilService.getUserLocation(user.getUserId()), service).thenApply(visitedLocation -> {
-            calculateRewards(user);
-            return visitedLocation;
-        });
+                gpsUtilService.getUserLocation(user.getUserId()), service);
     }
 
     /**
@@ -82,21 +95,21 @@ public class TourGuideService {
      * @param user
      *
      * @return a void CompletableFuture
+
+     @Override public CompletableFuture<Void> calculateRewards(User user) {
+
+     return rewardsService.calculateRewards(user);
+     }
      */
-    public CompletableFuture<Void> calculateRewards(User user) {
-
-        return rewardsService.calculateRewards(user);
-    }
-
     /**
      * get five near attraction to the given user;
      *
      * @param userName
      *
      * @return list off near attractions
-     *
      */
-    public List<NearAttractionDTO> getNearAttractions(String userName) {
+    @Override
+    public CompletableFuture<List<NearAttractionDTO>> getNearAttractions(String userName) throws DataNotFoundException {
 
         User user = userService.getUser(userName);
         return getUserLocation(user)
@@ -111,17 +124,14 @@ public class TourGuideService {
                                          .sorted(Comparator.comparingDouble(NearAttractionDTO::getDistance))
                                          .limit(NUMBER_OF_NEAR_ATTRACTIONS)
                                          .collect(Collectors.toList());
-                }).join();
+                });
     }
 
-    public Map<String, Location> getAllUsersLocation() {
+    @Override
+    public Map<UUID, Location> getAllUsersLocation() {
 
-        Map<String, Location> userLocations = new HashMap<>();
-        getAllUsers().forEach(u ->
-                getUserLocation(u).thenAccept(vl ->
-                        userLocations.put(u.getUserId().toString(), vl.getLocation())).join());
-
-        return userLocations;
+        return getAllUsers().stream()
+                            .collect(Collectors.toMap(User::getUserId, u -> getUserLocation(u).join().getLocation()));
     }
 
 
@@ -136,19 +146,27 @@ public class TourGuideService {
         });
     }
 
+    @Override
     public List<User> getAllUsers() {
 
         return userService.getAllUsers();
     }
 
-
+    @Override
     public List<Provider> getTripDeals(User user) {
 
-        int cumulativeRewardPoints = user.getUserRewards().stream().mapToInt(UserReward::getRewardPoints).sum();
         List<Provider> providers = pricerServiceProxy.getTripDeals(user.getUserId(),
-                user.getUserPreferences().getNumberOfAdults(), user.getUserPreferences().getNumberOfAdults(),
-                user.getUserPreferences().getTripDuration(), cumulativeRewardPoints);
+                user.getUserPreferences().getNumberOfAdults(), user.getUserPreferences().getNumberOfChildren(),
+                user.getUserPreferences().getTripDuration(), user.getUserRewards()
+                                                                 .stream()
+                                                                 .mapToInt(UserReward::getRewardPoints)
+                                                                 .sum());
         user.setTripDeals(providers);
         return providers;
+    }
+
+    @Override
+    public void addUser(UserDTO userDTO) throws AlreadyExistsException {
+        userService.addUser(new User(userDTO.getUserId(), userDTO.getUserName(), userDTO.getPhoneNumber(), userDTO.getEmailAddress()));
     }
 }

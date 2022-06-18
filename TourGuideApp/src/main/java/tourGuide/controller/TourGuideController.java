@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import tourGuide.service.TourGuideService;
+import tourGuide.Exception.DataNotFoundException;
+import tourGuide.proxies.TripPricerServiceProxy;
+import tourGuide.service.*;
+import tourGuide.utils.Initializer;
 
 
 import java.util.List;
@@ -15,8 +18,9 @@ import java.util.concurrent.ExecutionException;
 @RestController
 public class TourGuideController {
 
+
     @Autowired
-    private TourGuideService tourGuideService;
+    private ITourGuideService tourGuideService;
 
     @RequestMapping("/")
     public String index() {
@@ -25,7 +29,7 @@ public class TourGuideController {
     }
 
     @RequestMapping("/Location")
-    public String getLocation(@RequestParam String userName) throws ExecutionException, InterruptedException {
+    public String getLocation(@RequestParam String userName) throws ExecutionException, InterruptedException, DataNotFoundException {
 
         return tourGuideService.getUserLocation(tourGuideService.getUser(userName))
                                .thenApply(visitedLocation -> JsonStream.serialize(visitedLocation.getLocation())).get();
@@ -33,13 +37,13 @@ public class TourGuideController {
     }
 
     @RequestMapping("/NearbyAttractions")
-    public String getNearbyAttractions(@RequestParam String userName) {
+    public String getNearbyAttractions(@RequestParam String userName) throws DataNotFoundException {
 
-        return JsonStream.serialize(tourGuideService.getNearAttractions(userName));
+        return JsonStream.serialize(tourGuideService.getNearAttractions(userName).join());
     }
 
     @RequestMapping("/Rewards")
-    public String getRewards(@RequestParam String userName) {
+    public String getRewards(@RequestParam String userName) throws DataNotFoundException {
 
         return JsonStream.serialize(tourGuideService.getUserRewards(tourGuideService.getUser(userName)));
     }
@@ -60,7 +64,7 @@ public class TourGuideController {
     }
 
        @RequestMapping("/tripDeals")
-        public String getTripDeals(@RequestParam String userName) {
+        public String getTripDeals(@RequestParam String userName) throws DataNotFoundException {
             List<Provider> providers = tourGuideService.getTripDeals(tourGuideService.getUser(userName));
             return JsonStream.serialize(providers);
         }

@@ -1,7 +1,8 @@
-package tourGuide;
+package tourGuide.Integration.service;
 
 
 import Common.DTO.NearAttractionDTO;
+import Common.DTO.UserDTO;
 import Common.model.Provider;
 import Common.model.User;
 import Common.model.VisitedLocation;
@@ -10,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import tourGuide.Exception.AlreadyExistsException;
+import tourGuide.Exception.DataNotFoundException;
 import tourGuide.proxies.TripPricerServiceProxy;
 import tourGuide.service.GpsUtilService;
 import tourGuide.service.RewardsService;
@@ -23,15 +26,17 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
 @SpringBootTest
-public class TestTourGuideService {
+public class TourGuideServiceIT {
 
     @Autowired
     private Initializer            initializer;
+    @Autowired
     private GpsUtilService         gpsUtilService;
     @Autowired
     private UserService            userService;
@@ -39,8 +44,8 @@ public class TestTourGuideService {
     private TripPricerServiceProxy tripPricerServiceProxy;
 
     @Autowired
-    private RewardsService   rewardsService;
-    @Autowired
+    private RewardsService rewardsService;
+
     private TourGuideService tourGuideService;
 
     @BeforeEach
@@ -50,105 +55,94 @@ public class TestTourGuideService {
     }
 
     @Test
-    public void getUserLocation() throws ExecutionException, InterruptedException {
-
+    public void getUserLocationTest() throws ExecutionException, InterruptedException {
+        //Arrange
         InternalTestHelper.setInternalUserNumber(0);
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
 
-        User            user            = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+        User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+        //Act
         VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user).get();
         tourGuideService.tracker.stopTracking();
+        //Assert
         assertTrue(visitedLocation.getUserId().equals(user.getUserId()));
     }
 
     @Test
-    public void addUser() {
-
-
+    public void addUserTest() throws AlreadyExistsException, DataNotFoundException {
+        //Arrange
         InternalTestHelper.setInternalUserNumber(0);
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
-
-        User user  = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-        User user2 = new User(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
-
-        userService.addUser(user);
-        userService.addUser(user2);
-
-        User retrivedUser  = userService.getUser(user.getUserName());
-        User retrivedUser2 = userService.getUser(user2.getUserName());
-
+        UserDTO user = new UserDTO(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+        //Act
+        tourGuideService.addUser(user);
+        //Assert
+        User user1 = userService.getUser("jon");
         tourGuideService.tracker.stopTracking();
+        assertThat(user1.getUserId()).isEqualTo(user.getUserId());
 
-        assertEquals(user, retrivedUser);
-        assertEquals(user2, retrivedUser2);
     }
 
     @Test
-    public void getAllUsers() {
-
-        InternalTestHelper.setInternalUserNumber(0);
+    public void getAllUsersTest() {
+        //Arrange
+        InternalTestHelper.setInternalUserNumber(2);
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
 
-        User user  = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-        User user2 = new User(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
-
-        userService.addUser(user);
-        userService.addUser(user2);
-
+        //Act
         List<User> allUsers = userService.getAllUsers();
-
         tourGuideService.tracker.stopTracking();
+        //Assert
+        assertThat(allUsers.size()).isEqualTo(2);
 
-        assertTrue(allUsers.contains(user));
-        assertTrue(allUsers.contains(user2));
     }
 
     @Test
-    public void trackUser() throws ExecutionException, InterruptedException {
+    public void trackUserTest() throws ExecutionException, InterruptedException {
 
-
+        //Arrange
         InternalTestHelper.setInternalUserNumber(0);
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
 
-        User            user            = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+        User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+        //Act
         VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user).get();
 
         tourGuideService.tracker.stopTracking();
-
+        //Assert
         assertEquals(user.getUserId(), visitedLocation.getUserId());
     }
 
 
     @Test
-    public void getNearbyAttractions() throws ExecutionException, InterruptedException {
+    public void getNearbyAttractions() throws ExecutionException, InterruptedException, DataNotFoundException {
 
-
+        //Arrange
         InternalTestHelper.setInternalUserNumber(0);
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
 
         User            user            = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user).get();
-
-        List<NearAttractionDTO> attractions = tourGuideService.getNearAttractions(user.getUserName());
+        //Act
+        List<NearAttractionDTO> attractions = tourGuideService.getNearAttractions(user.getUserName()).join();
 
         tourGuideService.tracker.stopTracking();
-
+        //Assert
         assertEquals(5, attractions.size());
     }
 
     @Test
-    public void getTripDeals() {
+    public void getTripDealsTest() {
 
-
+        //Arrange
         InternalTestHelper.setInternalUserNumber(0);
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
-
         User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-
+        //Assert
         List<Provider> providers = tourGuideService.getTripDeals(user);
 
         tourGuideService.tracker.stopTracking();
-
+        //Assert
         assertEquals(5, providers.size());
     }
 

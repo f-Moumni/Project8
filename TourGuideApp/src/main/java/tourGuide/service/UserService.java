@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tourGuide.Exception.AlreadyExistsException;
+import tourGuide.Exception.DataNotFoundException;
 import tourGuide.repository.UserRepository;
 
 import java.util.List;
@@ -13,32 +15,34 @@ import java.util.List;
 @Service
 public class UserService {
 
-    private final UserRepository userRepository;
     private final Logger         logger = LoggerFactory.getLogger(UserService.class);
-
     @Autowired
-    public UserService(UserRepository userRepository) {this.userRepository = userRepository;}
+    private       UserRepository userRepository;
 
 
 
+    public User getUser(String userName) throws DataNotFoundException {
 
-    public List<UserReward> getUserRewards(User user){
-        return user.getUserRewards();
+        User user = userRepository.findByUserName(userName);
+        if (user == null) {
+            throw new DataNotFoundException(" User with username : " +userName+" not found !!");
+        }
+        return user;
     }
 
-    public User getUser(String userName){
-        return userRepository.findByUserName(userName);
-    }
+    public List<User> getAllUsers() {
 
-    public List<User> getAllUsers(){
         return userRepository.findAllUsers();
     }
 
-    public void addUser(User user) {
+    public void addUser(User user) throws AlreadyExistsException {
 
-       userRepository.saveUser(user);
+        User userToSave = userRepository.findByUserName(user.getUserName());
+        if (userToSave != null) {
+            throw new AlreadyExistsException("User with username : " + user.getUserName() + " already exists ");
+        }
+        userRepository.saveUser(user);
     }
-
 
 
 }

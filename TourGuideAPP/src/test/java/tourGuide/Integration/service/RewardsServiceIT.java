@@ -1,4 +1,4 @@
-package tourGuide;
+package tourGuide.Integration.service;
 
 import Common.model.Attraction;
 import Common.model.User;
@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
 @SpringBootTest
-public class TestRewardsService {
+public class RewardsServiceIT {
 
     @Autowired
     private Initializer            initializer;
@@ -52,15 +52,17 @@ public class TestRewardsService {
 
     @Test
     public void userGetRewards() throws ExecutionException, InterruptedException {
-
+        //Arrange
         InternalTestHelper.setInternalUserNumber(0);
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
         User       user       = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         Attraction attraction = gpsUtilService.getAttractions().get(0);
         user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
-        tourGuideService.calculateRewards(user).get();
+        //Act
+        rewardsService.calculateRewards(user).get();
         List<UserReward> userRewards = user.getUserRewards();
         tourGuideService.tracker.stopTracking();
+        //Assert
         assertTrue(userRewards.size() == 1);
     }
 
@@ -70,18 +72,18 @@ public class TestRewardsService {
         Attraction attraction = gpsUtilService.getAttractions().get(0);
         assertTrue(rewardsService.isWithinAttractionProximity(attraction, attraction));
     }
+     // Needs fixed - can throw ConcurrentModificationException
+    //@Test
+    public void nearAllAttractions() throws ExecutionException, InterruptedException {
 
-    @Disabled // Needs fixed - can throw ConcurrentModificationException
-    @Test
-    public void nearAllAttractions() {
-
-        rewardsService.setProximityBuffer(Integer.MAX_VALUE);
 
         InternalTestHelper.setInternalUserNumber(1);
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
-
-        rewardsService.calculateRewards(userService.getAllUsers().get(0));
-        List<UserReward> userRewards = tourGuideService.getUserRewards(userService.getAllUsers().get(0));
+        rewardsService.setProximityBuffer(Integer.MAX_VALUE);
+        User user = userService.getAllUsers().get(0);
+        tourGuideService.tracker.stopTracking();
+        rewardsService.calculateRewards(user).get();
+        List<UserReward> userRewards = tourGuideService.getUserRewards(user);
         tourGuideService.tracker.stopTracking();
 
         assertEquals(gpsUtilService.getAttractions().size(), userRewards.size());

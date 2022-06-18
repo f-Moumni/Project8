@@ -72,7 +72,7 @@ public class TestPerformance {
      */
 
 
-    @Test
+  //  @Test
     public void highVolumeTrackLocation() {
 
         // Users should be incremented up to 100,000, and test finishes within 15 minutes
@@ -99,7 +99,7 @@ public class TestPerformance {
     }
 
 
-    @Test
+  //  @Test
     public void highVolumeGetRewards() {
 
         StopWatch stopWatch = new StopWatch();

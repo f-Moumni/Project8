@@ -1,10 +1,11 @@
-package tourGuide.proxies;
+package tourGuide.Integration.proxies;
 
 import Common.model.Attraction;
 import Common.model.VisitedLocation;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import tourGuide.proxies.GpsServiceProxy;
 
 import java.util.List;
 import java.util.UUID;

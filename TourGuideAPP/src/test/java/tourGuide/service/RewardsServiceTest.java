@@ -7,24 +7,24 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import tourGuide.repository.GpsUtilsRepository;
+import tourGuide.proxies.RewardsServiceProxy;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class GpsUtilServiceTest {
+public class RewardsServiceTest {
 
     @Mock
-    private GpsUtilsRepository gpsUtilsRepository;
-
+    private GpsUtilService      gpsUtilService;
+    @Mock
+    private RewardsServiceProxy rewardsServiceProxy;
     @InjectMocks
-    private GpsUtilService gpsUtilService;
+    private RewardsService      rewardsService;
 
     private User            user;
     private VisitedLocation visitedLocation;
@@ -34,6 +34,8 @@ public class GpsUtilServiceTest {
 
     @BeforeEach
     void setUp() {
+
+
         user             = new User(UUID.randomUUID(), "john", "123445", "john@tourguide.com");
         location         = new Location(33.817595D, -117.922008D);
         visitedLocation  = new VisitedLocation(UUID.randomUUID(), location, new Date());
@@ -42,34 +44,17 @@ public class GpsUtilServiceTest {
     }
 
     @Test
-    void getAttractionsTest() {
+    void calculateRewardsTest() {
         //Arrange
-        when(gpsUtilService.getAttractions()).thenReturn(List.of(attraction, attraction));
-        //Act
-        List<Attraction> result = gpsUtilService.getAttractions();
-        //Assert
-        assertThat(result.size()).isEqualTo(2);
-    }
 
-    @Test
-    void getAttractionsTest_withEmptyList() {
-        //Arrange
-        when(gpsUtilService.getAttractions()).thenReturn(new ArrayList<Attraction>());
+        user.addToVisitedLocations(visitedLocation);
+        when(gpsUtilService.getAttractions()).thenReturn(List.of(attraction));
+        when(rewardsServiceProxy.getAttractionRewardPoints(attraction.getAttractionId(), user.getUserId())).thenReturn(23);
         //Act
-        List<Attraction> result = gpsUtilService.getAttractions();
+        rewardsService.calculateRewards(user);
         //Assert
-        assertThat(result.size()).isZero();
-    }
-
-    @Test
-    void getUserLocationTest() {
-        //Arrange
-        UUID userId = UUID.randomUUID();
-        when(gpsUtilsRepository.getUserLocation(userId)).thenReturn(visitedLocation);
-        //Act
-        VisitedLocation result = gpsUtilService.getUserLocation(userId);
-        //ASSERT
-        assertThat(result).isEqualToComparingFieldByField(visitedLocation);
+        verify(gpsUtilService).getAttractions();
+        verify(rewardsServiceProxy, times(1)).getAttractionRewardPoints(any(), any());
 
     }
 }

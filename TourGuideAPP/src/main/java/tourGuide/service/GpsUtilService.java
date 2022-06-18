@@ -12,14 +12,21 @@ import java.util.UUID;
 @Service
 public class GpsUtilService {
 
+
+    private final GpsUtilsRepository gpsUtilsRepository;
+
     @Autowired
-    GpsUtilsRepository gpsUtilsRepository;
+    public GpsUtilService(GpsUtilsRepository gpsUtilsRepository) {
+        this.gpsUtilsRepository = gpsUtilsRepository;
+    }
 
     public List<Attraction> getAttractions() {
+
         return gpsUtilsRepository.getAttractions();
     }
 
-    public VisitedLocation getUserLocation(UUID userId){
+    public VisitedLocation getUserLocation(UUID userId) {
+
         return gpsUtilsRepository.getUserLocation(userId);
     }
 }
