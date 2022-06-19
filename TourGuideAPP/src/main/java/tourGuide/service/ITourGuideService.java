@@ -26,7 +26,7 @@ public interface ITourGuideService {
 
     CompletableFuture<List<NearAttractionDTO> > getNearAttractions(String userName) throws DataNotFoundException;
 
-    Map<UUID, Location> getAllUsersLocation();
+    Map<String, Location> getAllUsersLocation();
 
     List<User> getAllUsers();
 

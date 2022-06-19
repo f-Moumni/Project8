@@ -1,19 +1,18 @@
 package tourGuide.controller;
 
+import Common.DTO.UserDTO;
 import Common.model.Provider;
+import Common.model.User;
 import com.jsoniter.output.JsonStream;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import tourGuide.Exception.AlreadyExistsException;
 import tourGuide.Exception.DataNotFoundException;
-import tourGuide.proxies.TripPricerServiceProxy;
-import tourGuide.service.*;
-import tourGuide.utils.Initializer;
-
+import tourGuide.service.ITourGuideService;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 @RestController
 public class TourGuideController {
@@ -29,11 +28,8 @@ public class TourGuideController {
     }
 
     @RequestMapping("/Location")
-    public String getLocation(@RequestParam String userName) throws ExecutionException, InterruptedException, DataNotFoundException {
-
-        return tourGuideService.getUserLocation(tourGuideService.getUser(userName))
-                               .thenApply(visitedLocation -> JsonStream.serialize(visitedLocation.getLocation())).get();
-
+    public String getLocation(@RequestParam String userName) throws DataNotFoundException {
+        return JsonStream.serialize (tourGuideService.getUserLocation(getUser(userName)).join());
     }
 
     @RequestMapping("/NearbyAttractions")
@@ -45,30 +41,33 @@ public class TourGuideController {
     @RequestMapping("/Rewards")
     public String getRewards(@RequestParam String userName) throws DataNotFoundException {
 
-        return JsonStream.serialize(tourGuideService.getUserRewards(tourGuideService.getUser(userName)));
+        return JsonStream.serialize(tourGuideService.getUserRewards(getUser(userName)));
     }
 
     @RequestMapping("/AllCurrentLocations")
     public String getAllCurrentLocations() {
-        // TODO: Get a list of every user's most recent location as JSON
-        //- Note: does not use gpsUtil to query for their current location,
-        //        but rather gathers the user's current location from their stored location history.
-        //
-        // Return object should be the just a JSON mapping of userId to Locations similar to:
-        //     {
-        //        "019b04a9-067a-4c76-8817-ee75088c3822": {"longitude":-48.188821,"latitude":74.84371}
-        //        ...
-        //     }
 
         return JsonStream.serialize(tourGuideService.getAllUsersLocation());
     }
 
-       @RequestMapping("/tripDeals")
-        public String getTripDeals(@RequestParam String userName) throws DataNotFoundException {
-            List<Provider> providers = tourGuideService.getTripDeals(tourGuideService.getUser(userName));
-            return JsonStream.serialize(providers);
-        }
+    @RequestMapping("/tripDeals")
+    public String getTripDeals(@RequestParam String userName) throws DataNotFoundException {
 
+        List<Provider> providers = tourGuideService.getTripDeals(getUser(userName));
+        return JsonStream.serialize(providers);
+    }
+
+    @PostMapping("/user")
+    public ResponseEntity<String> AddUser(@RequestBody UserDTO newUser) throws AlreadyExistsException {
+        tourGuideService.addUser(newUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body("done !!");
+    }
+
+    private User getUser(String userName) throws DataNotFoundException {
+
+        return tourGuideService.getUser(userName);
+
+    }
 
 }
 

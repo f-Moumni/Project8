@@ -128,10 +128,11 @@ public class TourGuideService implements ITourGuideService {
     }
 
     @Override
-    public Map<UUID, Location> getAllUsersLocation() {
+    public Map<String, Location> getAllUsersLocation() {
 
         return getAllUsers().stream()
-                            .collect(Collectors.toMap(User::getUserId, u -> getUserLocation(u).join().getLocation()));
+                            .collect(Collectors.
+                                    toMap(u -> u.getUserId().toString(), u -> getUserLocation(u).join().getLocation()));
     }
 
 
@@ -167,6 +168,6 @@ public class TourGuideService implements ITourGuideService {
 
     @Override
     public void addUser(UserDTO userDTO) throws AlreadyExistsException {
-        userService.addUser(new User(userDTO.getUserId(), userDTO.getUserName(), userDTO.getPhoneNumber(), userDTO.getEmailAddress()));
+        userService.addUser(new User(UUID.randomUUID(), userDTO.getUserName(), userDTO.getPhoneNumber(), userDTO.getEmailAddress()));
     }
 }

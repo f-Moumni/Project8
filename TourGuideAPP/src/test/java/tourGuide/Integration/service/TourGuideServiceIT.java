@@ -50,14 +50,14 @@ public class TourGuideServiceIT {
 
     @BeforeEach
     public void init() {
-
+        InternalTestHelper.setInternalUserNumber(0);
         Locale.setDefault(new Locale.Builder().setLanguage("en").setRegion("US").build());
     }
 
     @Test
     public void getUserLocationTest() throws ExecutionException, InterruptedException {
         //Arrange
-        InternalTestHelper.setInternalUserNumber(0);
+
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
 
         User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
@@ -71,15 +71,15 @@ public class TourGuideServiceIT {
     @Test
     public void addUserTest() throws AlreadyExistsException, DataNotFoundException {
         //Arrange
-        InternalTestHelper.setInternalUserNumber(0);
+
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
-        UserDTO user = new UserDTO(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+        UserDTO user = new UserDTO( "jon", "000", "jon@tourGuide.com");
         //Act
         tourGuideService.addUser(user);
         //Assert
         User user1 = userService.getUser("jon");
         tourGuideService.tracker.stopTracking();
-        assertThat(user1.getUserId()).isEqualTo(user.getUserId());
+        assertThat(user1.getUserName()).isEqualTo(user.getUserName());
 
     }
 
@@ -90,10 +90,10 @@ public class TourGuideServiceIT {
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
 
         //Act
-        List<User> allUsers = userService.getAllUsers();
+        List<User> allUsers = tourGuideService.getAllUsers();
         tourGuideService.tracker.stopTracking();
         //Assert
-        assertThat(allUsers.size()).isEqualTo(2);
+        assertThat(allUsers.size()).isEqualTo(3);
 
     }
 
@@ -101,7 +101,7 @@ public class TourGuideServiceIT {
     public void trackUserTest() throws ExecutionException, InterruptedException {
 
         //Arrange
-        InternalTestHelper.setInternalUserNumber(0);
+
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
 
         User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
@@ -118,7 +118,7 @@ public class TourGuideServiceIT {
     public void getNearbyAttractions() throws ExecutionException, InterruptedException, DataNotFoundException {
 
         //Arrange
-        InternalTestHelper.setInternalUserNumber(0);
+
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
 
         User            user            = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
@@ -135,7 +135,7 @@ public class TourGuideServiceIT {
     public void getTripDealsTest() {
 
         //Arrange
-        InternalTestHelper.setInternalUserNumber(0);
+
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
         User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         //Assert

@@ -136,7 +136,7 @@ public class TourGuideServiceTest {
         user1.addToVisitedLocations(visitedLocation);
         doReturn(List.of(user1)).when(userService).getAllUsers();
         //Act
-        Map<UUID, Location> result = tourGuideService.getAllUsersLocation();
+        Map<String, Location> result = tourGuideService.getAllUsersLocation();
         //Assert
         assertThat(result.size()).isEqualTo(1);
 
@@ -145,7 +145,7 @@ public class TourGuideServiceTest {
     @Test
     void getAllUsersTest() {
         //Arrange
-        doReturn(List.of(user)).when(userService).getAllUsers();
+       when(userService.getAllUsers()).thenReturn(List.of(user));
         //Act
         List<User> users = tourGuideService.getAllUsers();
         //Assert
@@ -179,7 +179,7 @@ public class TourGuideServiceTest {
     @Test
     void addUserTest() throws AlreadyExistsException {
         //Arrange
-        UserDTO userDTO = new UserDTO(UUID.randomUUID(), "john", "123445", "john@tourguide.com");
+        UserDTO userDTO = new UserDTO( "john", "123445", "john@tourguide.com");
         doNothing().when(userService).addUser(any(User.class));
         //Act
         tourGuideService.addUser(userDTO);
