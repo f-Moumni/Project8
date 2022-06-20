@@ -122,7 +122,7 @@ public class TourGuideServiceIT {
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
 
         User            user            = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-        VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user).get();
+        VisitedLocation visitedLocation = tourGuideService.getUserLocation(user).get();
         //Act
         List<NearAttractionDTO> attractions = tourGuideService.getNearAttractions(user.getUserName()).join();
 

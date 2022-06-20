@@ -72,7 +72,7 @@ public class TestPerformance {
      */
 
 
-  //  @Test
+   // @Test
     public void highVolumeTrackLocation() {
 
         // Users should be incremented up to 100,000, and test finishes within 15 minutes
@@ -99,14 +99,14 @@ public class TestPerformance {
     }
 
 
-  //  @Test
+   //@Test
     public void highVolumeGetRewards() {
 
         StopWatch stopWatch = new StopWatch();
 
         // Users should be incremented up to 100,000, and test finishes within 20 minutes
 
-        InternalTestHelper.setInternalUserNumber(100000);
+        InternalTestHelper.setInternalUserNumber(1000);
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
 
         Attraction attraction = gpsUtilService.getAttractions().get(0);
@@ -125,7 +125,7 @@ public class TestPerformance {
 
         tourGuideService.tracker.stopTracking();
         System.out.println(allUsers.size());
-        allUsers.forEach(user -> {
+        allUsers.parallelStream().forEach(user -> {
             assertNotEquals(0, user.getUserRewards().get(0).getRewardPoints());
             assertTrue(user.getUserRewards().size() > 0);
         });

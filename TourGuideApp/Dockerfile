@@ -10,7 +10,7 @@ WORKDIR /app
 #Copy the jar from host machine to image filesystem
 COPY build/libs/TourGuideApp.jar tourGuideApp.jar
 
-#expose in hot:8080
+#expose in port:8080
 EXPOSE 8080
 
 ENTRYPOINT ["java","-jar","tourGuideApp.jar"]

@@ -5,7 +5,6 @@ import Common.model.User;
 import Common.model.UserReward;
 import Common.model.VisitedLocation;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -72,16 +71,17 @@ public class RewardsServiceIT {
         Attraction attraction = gpsUtilService.getAttractions().get(0);
         assertTrue(rewardsService.isWithinAttractionProximity(attraction, attraction));
     }
-     // Needs fixed - can throw ConcurrentModificationException
+
+    // Needs fixed - can throw ConcurrentModificationException
     //@Test
     public void nearAllAttractions() throws ExecutionException, InterruptedException {
-
-
+        //Arrange
         InternalTestHelper.setInternalUserNumber(1);
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
-        rewardsService.setProximityBuffer(Integer.MAX_VALUE);
+        rewardsService.setDefaultProximityBuffer(Integer.MAX_VALUE);
         User user = userService.getAllUsers().get(0);
-        tourGuideService.tracker.stopTracking();
+
+        //Act
         rewardsService.calculateRewards(user).get();
         List<UserReward> userRewards = tourGuideService.getUserRewards(user);
         tourGuideService.tracker.stopTracking();

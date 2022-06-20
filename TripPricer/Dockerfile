@@ -11,6 +11,6 @@ WORKDIR /app
 COPY build/libs/TripPricer.jar tripPricer.jar
 
 #expose in Port:8083
-EXPOSE 8083
+#EXPOSE 8083
 
 ENTRYPOINT ["java","-jar","tripPricer.jar"]

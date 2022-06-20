@@ -31,9 +31,9 @@ public class TourGuideService implements ITourGuideService {
 
     public final  Tracker                tracker;
     private final Logger                 logger = LoggerFactory.getLogger(TourGuideService.class);
-    private final GpsUtilService         gpsUtilService;
-    private final RewardsService         rewardsService;
-    private final UserService            userService;
+    private final IGpsUtilService         gpsUtilService;
+    private final IRewardsService         rewardsService;
+    private final IUserService            userService;
     private final TripPricerServiceProxy pricerServiceProxy;
     ExecutorService service = Executors.newFixedThreadPool(100);
     private       Initializer            initializer;

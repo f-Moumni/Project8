@@ -1,7 +1,6 @@
 package tourGuide.service;
 
 import Common.model.User;
-import Common.model.UserReward;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,14 +12,14 @@ import tourGuide.repository.UserRepository;
 import java.util.List;
 
 @Service
-public class UserService {
+public class UserService implements IUserService {
 
     private final Logger         logger = LoggerFactory.getLogger(UserService.class);
     @Autowired
     private       UserRepository userRepository;
 
 
-
+    @Override
     public User getUser(String userName) throws DataNotFoundException {
 
         User user = userRepository.findByUserName(userName);
@@ -29,12 +28,13 @@ public class UserService {
         }
         return user;
     }
-
+    @Override
     public List<User> getAllUsers() {
 
         return userRepository.findAllUsers();
     }
 
+    @Override
     public void addUser(User user) throws AlreadyExistsException {
 
         User userToSave = userRepository.findByUserName(user.getUserName());

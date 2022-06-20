@@ -1,37 +1,40 @@
-version: "3"
+version: "3.9"
 
 services:
     gps-util:
-        image: gps-util:1.0
+        image: gps-util:2.0
         container_name: gps-util
         ports:
             - "8081:8081"
         networks:
-            - my-net-work
+            - default
     rewards:
-        image: rewards:1.0
+        image: rewards:2.0
         container_name: rewards
         ports:
             - "8082:8082"
         networks:
-            - my-net-work
+            - default
     tripe-pricer:
-        image: tripe-pricer:1.0
+        image: tripe-pricer:2.0
         container_name: tripe-pricer
         ports:
             - "8083:8083"
         networks:
-            - my-net-work
+            - default
     tourGuideApp:
-        image: tour-guide-app:1.0
+        image: tour-guide-app:2.0
         container_name: tour-guide-app
         ports:
             - "8080:8080"
         depends_on:
             - gps-util
-            - tripe-pricer
             - rewards
+            - tripe-pricer
+        environment:
+            GPS_URL: gps-util:8081
+            REWARDS-URL: rewards:8082
+            RRICER-URL:  tripe-pricer:8083
         networks:
-            - my-net-work
-networks:
-    my-net-work:
+             - default
+

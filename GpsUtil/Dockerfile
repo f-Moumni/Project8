@@ -11,6 +11,6 @@ WORKDIR /app
 COPY build/libs/GpsUtil.jar gps-utils.jar
 
 #expose in hot:8081
-EXPOSE 8081
+#EXPOSE 8081
 
 ENTRYPOINT ["java","-jar","gps-utils.jar"]

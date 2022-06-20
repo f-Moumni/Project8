@@ -4,6 +4,7 @@ import Common.model.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import tourGuide.proxies.GpsServiceProxy;
 import tourGuide.proxies.TripPricerServiceProxy;
 
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-
+@ActiveProfiles("test")
 @SpringBootTest
 public class TripPricerServiceProxyIT {
 

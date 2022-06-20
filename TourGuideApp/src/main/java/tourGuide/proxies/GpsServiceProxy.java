@@ -2,6 +2,7 @@ package tourGuide.proxies;
 
 import Common.model.Attraction;
 import Common.model.VisitedLocation;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@FeignClient(value = "gps-service", url = "localhost:8081")
+@FeignClient(value = "gps-service", url = "${tourguide.gpsurl}")
 public interface GpsServiceProxy {
 
     @GetMapping(value = "gps/attractions")

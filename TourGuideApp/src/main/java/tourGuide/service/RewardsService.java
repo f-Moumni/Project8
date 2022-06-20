@@ -14,12 +14,12 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
-public class RewardsService {
+public class RewardsService implements IRewardsService {
 
-    public  ExecutorService service = Executors.newFixedThreadPool(100);
+    public ExecutorService service = Executors.newFixedThreadPool(100);
 
     @Autowired
-    private GpsUtilService  gpsUtilService;
+    private GpsUtilService gpsUtilService;
 
     @Autowired
     private RewardsServiceProxy rewardsServiceProxy;
@@ -28,7 +28,7 @@ public class RewardsService {
     private int                 proximityBuffer          = defaultProximityBuffer;
     private int                 attractionProximityRange = 200;
 
-
+    @Override
     public CompletableFuture<Void> calculateRewards(User user) {
 
         final List<VisitedLocation> userLocations = user.getVisitedLocations();
@@ -36,14 +36,15 @@ public class RewardsService {
         final List<Attraction> attractions = gpsUtilService.getAttractions()
                                                            .parallelStream()
                                                            .filter(a -> userRewards.stream()
-                                                                                   .noneMatch(r -> r.getAttraction().getAttractionName().equals(a.getAttractionName())))
+                                                                                   .noneMatch(r -> r.getAttraction()
+                                                                                                    .getAttractionName()
+                                                                                                    .equals(a.getAttractionName())))
                                                            .collect(Collectors.toList());
         return CompletableFuture.runAsync(() -> {
-            userLocations.forEach(vl -> attractions.stream().forEach(a -> {
-                if (isNearAttraction(vl, a)) {
-                    user.addUserReward(new UserReward(vl, a, getRewardPoints(a.getAttractionId(), user.getUserId())));
-                }
-            }));
+            userLocations.forEach(vl -> attractions.stream()
+                                                   .filter(a -> isNearAttraction(vl, a))
+                                                   .forEach(a -> user.addUserReward(new UserReward(vl, a, getRewardPoints(a.getAttractionId(), user.getUserId())))
+            ));
         }, service);
 
     }
@@ -53,23 +54,31 @@ public class RewardsService {
         this.proximityBuffer = proximityBuffer;
     }
 
+    public void setDefaultProximityBuffer(int proximityBuffer) {
+
+        this.defaultProximityBuffer = proximityBuffer;
+
+    }
+
     /**
      * @param attraction
      * @param location
      *
      * @return
      */
-
+    @Override
     public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
 
         return Distance.getDistance(attraction, location) < attractionProximityRange;
     }
 
-    private boolean isNearAttraction(VisitedLocation visitedLocation, Location attractionLocation) {
+    @Override
+    public boolean isNearAttraction(VisitedLocation visitedLocation, Location attractionLocation) {
 
         return Distance.getDistance(attractionLocation, visitedLocation.getLocation()) < defaultProximityBuffer;
     }
 
+    @Override
     public int getRewardPoints(UUID attractionId, UUID userId) {
 
         return rewardsServiceProxy.getAttractionRewardPoints(attractionId, userId);

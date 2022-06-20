@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.UUID;
 
 @Service
-@FeignClient(value = "rewards-service", url = "localhost:8082")
+@FeignClient(value = "rewards-service", url = "${tourguide.rewardsurl}")
 public interface RewardsServiceProxy {
 
     @GetMapping("rewardPoints")

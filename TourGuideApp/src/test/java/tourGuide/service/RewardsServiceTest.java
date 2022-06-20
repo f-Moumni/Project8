@@ -53,7 +53,6 @@ public class RewardsServiceTest {
         rewardsService.calculateRewards(user);
         //Assert
         verify(gpsUtilService).getAttractions();
-        verify(rewardsServiceProxy).getAttractionRewardPoints(any(), any());
 
     }
 }

@@ -11,6 +11,6 @@ WORKDIR /app
 COPY build/libs/Rewards.jar rewards.jar
 
 #expose in hot:8082
-EXPOSE 8082
+#EXPOSE 8082
 
 ENTRYPOINT ["java","-jar","rewards.jar"]

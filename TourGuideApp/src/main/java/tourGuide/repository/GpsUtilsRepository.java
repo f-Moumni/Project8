@@ -12,11 +12,11 @@ import java.util.UUID;
 
 @Repository
 public class GpsUtilsRepository {
-    @Autowired
-    GpsServiceProxy gpsServiceProxy;
+
+    private final GpsServiceProxy gpsServiceProxy;
 
     private List<Attraction> attractions = new ArrayList<>();
-
+    @Autowired
     public GpsUtilsRepository(GpsServiceProxy gpsServiceProxy) {
         this.gpsServiceProxy = gpsServiceProxy;
         attractions      = gpsServiceProxy.getAttractions();

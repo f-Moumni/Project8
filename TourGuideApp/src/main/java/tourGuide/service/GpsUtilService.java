@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class GpsUtilService {
+public class GpsUtilService implements IGpsUtilService{
 
 
     private final GpsUtilsRepository gpsUtilsRepository;
@@ -20,13 +20,13 @@ public class GpsUtilService {
         this.gpsUtilsRepository = gpsUtilsRepository;
     }
 
+    @Override
     public List<Attraction> getAttractions() {
-
         return gpsUtilsRepository.getAttractions();
     }
 
+    @Override
     public VisitedLocation getUserLocation(UUID userId) {
-
         return gpsUtilsRepository.getUserLocation(userId);
     }
 }

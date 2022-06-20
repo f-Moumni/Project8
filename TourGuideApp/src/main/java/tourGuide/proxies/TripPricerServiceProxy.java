@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@FeignClient(value = "pricer-service", url = "localhost:8083")
+@FeignClient(value = "pricer-service", url = "${tourguide.pricerurl}")
 public interface TripPricerServiceProxy {
 
     @GetMapping ("tripDeals")
