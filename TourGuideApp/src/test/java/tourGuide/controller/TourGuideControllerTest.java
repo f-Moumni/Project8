@@ -76,7 +76,9 @@ public class TourGuideControllerTest {
                //Assert
                .andExpect(status().isOk())
                .andExpect(content().string(containsString(
-                       "latitude\":33.817595,\"longitude\":-117.922008")));
+                       "latitude\":33.817595")))
+               .andExpect(content().string(containsString(
+                       "longitude\":-117.922008")));
     }
 
     @Test
@@ -91,7 +93,9 @@ public class TourGuideControllerTest {
                //Assert
                .andExpect(status().isOk())
                .andExpect(content().string(containsString(
-                       "latitude\":33.817595,\"longitude\":-122.817595")));
+                       "latitude\":33.817595")))
+               .andExpect(content().string(containsString(
+                       "longitude\":-122.817595")));
     }
 
     @Test
@@ -113,7 +117,7 @@ public class TourGuideControllerTest {
     void getAllCurrentLocationsTest() throws Exception {
         //Arrange
         Map<String, Location> locationMap = new HashMap<>();
-        UUID id =UUID.randomUUID();
+        UUID                  id          = UUID.randomUUID();
         locationMap.put(id.toString(), location);
         when(tourGuideService.getAllUsersLocation()).thenReturn(locationMap);
         //Act
@@ -121,8 +125,8 @@ public class TourGuideControllerTest {
                        .contentType(MediaType.APPLICATION_JSON))
                //Assert
 
-             .andExpect(content().string(containsString(
-                     "latitude\":33.817595"))).andExpect(content().string(containsString(
+               .andExpect(content().string(containsString(
+                       "latitude\":33.817595"))).andExpect(content().string(containsString(
                        "longitude\":-117.922008")));
     }
 
