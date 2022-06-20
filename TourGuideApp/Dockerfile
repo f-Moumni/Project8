@@ -8,9 +8,9 @@ RUN mkdir /app
 WORKDIR /app
 
 #Copy the jar from host machine to image filesystem
-COPY build/libs/Rewards.jar rewards.jar
+COPY build/libs/TourGuideApp.jar tourGuideApp.jar
 
-#expose in hot:8082
-EXPOSE 8082
+#expose in hot:8080
+EXPOSE 8080
 
-ENTRYPOINT ["java","-jar","rewards.jar"]
+ENTRYPOINT ["java","-jar","tourGuideApp.jar"]
