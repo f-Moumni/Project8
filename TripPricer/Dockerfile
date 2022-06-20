@@ -10,7 +10,7 @@ WORKDIR /app
 #Copy the jar from host machine to image filesystem
 COPY build/libs/TripPricer.jar tripPricer.jar
 
-#expose in hot:8083
+#expose in Port:8083
 EXPOSE 8083
 
 ENTRYPOINT ["java","-jar","tripPricer.jar"]

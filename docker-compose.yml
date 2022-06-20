@@ -1,0 +1,37 @@
+version: "3"
+
+services:
+    gps-util:
+        image: gps-util:1.0
+        container_name: gps-util
+        ports:
+            - "8081:8081"
+        networks:
+            - my-net-work
+    rewards:
+        image: rewards:1.0
+        container_name: rewards
+        ports:
+            - "8082:8082"
+        networks:
+            - my-net-work
+    tripe-pricer:
+        image: tripe-pricer:1.0
+        container_name: tripe-pricer
+        ports:
+            - "8083:8083"
+        networks:
+            - my-net-work
+    tourGuideApp:
+        image: tour-guide-app:1.0
+        container_name: tour-guide-app
+        ports:
+            - "8080:8080"
+        depends_on:
+            - gps-util
+            - tripe-pricer
+            - rewards
+        networks:
+            - my-net-work
+networks:
+    my-net-work:

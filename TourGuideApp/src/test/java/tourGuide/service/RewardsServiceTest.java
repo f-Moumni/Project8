@@ -46,7 +46,6 @@ public class RewardsServiceTest {
     @Test
     void calculateRewardsTest() {
         //Arrange
-
         user.addToVisitedLocations(visitedLocation);
         when(gpsUtilService.getAttractions()).thenReturn(List.of(attraction));
         when(rewardsServiceProxy.getAttractionRewardPoints(attraction.getAttractionId(), user.getUserId())).thenReturn(23);
@@ -54,7 +53,7 @@ public class RewardsServiceTest {
         rewardsService.calculateRewards(user);
         //Assert
         verify(gpsUtilService).getAttractions();
-        verify(rewardsServiceProxy, times(1)).getAttractionRewardPoints(any(), any());
+        verify(rewardsServiceProxy).getAttractionRewardPoints(any(), any());
 
     }
 }
