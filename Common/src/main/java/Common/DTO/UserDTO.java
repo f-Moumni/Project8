@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class UserDTO {
-	private  UUID userId;
 	private  String userName;
 	private String phoneNumber;
 	private String emailAddress;
@@ -20,8 +19,8 @@ public class UserDTO {
 	private List<UserReward>      userRewards      = new ArrayList<>();
 	private UserPreferencesDTO userPreferences = new UserPreferencesDTO();
 	private List<Provider>     tripDeals       = new ArrayList<>();
-	public UserDTO(UUID userId, String userName, String phoneNumber, String emailAddress) {
-		this.userId = userId;
+	public UserDTO( String userName, String phoneNumber, String emailAddress) {
+
 		this.userName = userName;
 		this.phoneNumber = phoneNumber;
 		this.emailAddress = emailAddress;
@@ -31,10 +30,6 @@ public class UserDTO {
 
 	}
 
-	public UUID getUserId() {
-
-		return userId;
-	}
 
 	public String getUserName() {
 

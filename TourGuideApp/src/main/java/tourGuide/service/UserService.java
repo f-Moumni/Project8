@@ -1,100 +1,48 @@
 package tourGuide.service;
 
-import Common.model.Location;
 import Common.model.User;
 import Common.model.UserReward;
-import Common.model.VisitedLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tourGuide.Exception.AlreadyExistsException;
+import tourGuide.Exception.DataNotFoundException;
 import tourGuide.repository.UserRepository;
-import tourGuide.utils.InternalTestHelper;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.List;
 
 @Service
 public class UserService {
 
-    private final UserRepository userRepository;
     private final Logger         logger = LoggerFactory.getLogger(UserService.class);
     @Autowired
-    public UserService(UserRepository userRepository) {this.userRepository = userRepository;}
-    /**********************************************************************************
-     *
-     * Methods Below: For Internal Testing
-     *
-     **********************************************************************************/
-
-    // Database connection will be used for external users, but for testing purposes internal users are provided and stored in memory
-    private final Map<String, User> internalUserMap = new HashMap<>();
+    private       UserRepository userRepository;
 
 
 
-    public List<UserReward> getUserRewards(User user) {
+    public User getUser(String userName) throws DataNotFoundException {
 
-        return user.getUserRewards();
-    }
-
-    public User getUser(String userName) {
-
-        return internalUserMap.get(userName);
+        User user = userRepository.findByUserName(userName);
+        if (user == null) {
+            throw new DataNotFoundException(" User with username : " +userName+" not found !!");
+        }
+        return user;
     }
 
     public List<User> getAllUsers() {
 
-        return internalUserMap.values().stream().collect(Collectors.toList());
+        return userRepository.findAllUsers();
     }
 
-    public void addUser(User user) {
+    public void addUser(User user) throws AlreadyExistsException {
 
-        if (!internalUserMap.containsKey(user.getUserName())) {
-            internalUserMap.put(user.getUserName(), user);
+        User userToSave = userRepository.findByUserName(user.getUserName());
+        if (userToSave != null) {
+            throw new AlreadyExistsException("User with username : " + user.getUserName() + " already exists ");
         }
+        userRepository.saveUser(user);
     }
 
-    public void initializeInternalUsers() {
 
-        IntStream.range(0, InternalTestHelper.getInternalUserNumber()).forEach(i -> {
-            String userName = "internalUser" + i;
-            String phone    = "000";
-            String email    = userName + "@tourGuide.com";
-            User   user     = new User(UUID.randomUUID(), userName, phone, email);
-            generateUserLocationHistory(user);
-
-            internalUserMap.put(userName, user);
-        });
-        logger.debug("Created " + InternalTestHelper.getInternalUserNumber() + " internal test users.");
-    }
-
-    private void generateUserLocationHistory(User user) {
-
-        IntStream.range(0, 3).forEach(i -> {
-            user.addToVisitedLocations(new VisitedLocation(user.getUserId(), new Location(generateRandomLatitude(), generateRandomLongitude()), getRandomTime()));
-        });
-    }
-
-    private double generateRandomLongitude() {
-
-        double leftLimit  = -180;
-        double rightLimit = 180;
-        return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);
-    }
-
-    private double generateRandomLatitude() {
-
-        double leftLimit  = -85.05112878;
-        double rightLimit = 85.05112878;
-        return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);
-    }
-
-    private Date getRandomTime() {
-
-        LocalDateTime localDateTime = LocalDateTime.now().minusDays(new Random().nextInt(30));
-        return Date.from(localDateTime.toInstant(ZoneOffset.UTC));
-    }
 }

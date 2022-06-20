@@ -28,6 +28,11 @@ public class User {
 
 	}
 
+	public void setVisitedLocations(List<VisitedLocation> visitedLocations) {
+
+		this.visitedLocations = visitedLocations;
+	}
+
 	public UUID getUserId() {
 		return userId;
 	}
