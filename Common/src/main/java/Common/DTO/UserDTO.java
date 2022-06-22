@@ -14,13 +14,9 @@ public class UserDTO {
 	private  String userName;
 	private String phoneNumber;
 	private String emailAddress;
-	private Date                  latestLocationTimestamp;
-	private List<VisitedLocation> visitedLocations = new ArrayList<>();
-	private List<UserReward>      userRewards      = new ArrayList<>();
-	private UserPreferencesDTO userPreferences = new UserPreferencesDTO();
-	private List<Provider>     tripDeals       = new ArrayList<>();
-	public UserDTO( String userName, String phoneNumber, String emailAddress) {
 
+
+	public UserDTO( String userName, String phoneNumber, String emailAddress) {
 		this.userName = userName;
 		this.phoneNumber = phoneNumber;
 		this.emailAddress = emailAddress;
@@ -56,53 +52,5 @@ public class UserDTO {
 		this.emailAddress = emailAddress;
 	}
 
-	public Date getLatestLocationTimestamp() {
 
-		return latestLocationTimestamp;
-	}
-
-	public void setLatestLocationTimestamp(Date latestLocationTimestamp) {
-
-		this.latestLocationTimestamp = latestLocationTimestamp;
-	}
-
-	public List<VisitedLocation> getVisitedLocations() {
-
-		return visitedLocations;
-	}
-
-	public void setVisitedLocations(List<VisitedLocation> visitedLocations) {
-
-		this.visitedLocations = visitedLocations;
-	}
-
-	public List<UserReward> getUserRewards() {
-
-		return userRewards;
-	}
-
-	public void setUserRewards(List<UserReward> userRewards) {
-
-		this.userRewards = userRewards;
-	}
-
-	public UserPreferencesDTO getUserPreferences() {
-
-		return userPreferences;
-	}
-
-	public void setUserPreferences(UserPreferencesDTO userPreferences) {
-
-		this.userPreferences = userPreferences;
-	}
-
-	public List<Provider> getTripDeals() {
-
-		return tripDeals;
-	}
-
-	public void setTripDeals(List<Provider> tripDeals) {
-
-		this.tripDeals = tripDeals;
-	}
 }

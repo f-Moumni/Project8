@@ -23,6 +23,7 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -52,9 +53,9 @@ public class RewardsServiceIT {
     @Test
     public void userGetRewards() throws ExecutionException, InterruptedException {
         //Arrange
-        InternalTestHelper.setInternalUserNumber(0);
+        InternalTestHelper.setInternalUserNumber(1);
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
-        User       user       = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+        User user= userService.getAllUsers().get(0);
         Attraction attraction = gpsUtilService.getAttractions().get(0);
         user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
         //Act
@@ -62,7 +63,7 @@ public class RewardsServiceIT {
         List<UserReward> userRewards = user.getUserRewards();
         tourGuideService.tracker.stopTracking();
         //Assert
-        assertTrue(userRewards.size() == 1);
+        assertThat(userRewards.size()).isEqualTo( 1);
     }
 
     @Test
@@ -72,14 +73,14 @@ public class RewardsServiceIT {
         assertTrue(rewardsService.isWithinAttractionProximity(attraction, attraction));
     }
 
-    // Needs fixed - can throw ConcurrentModificationException
-    //@Test
+
+    @Test
     public void nearAllAttractions() throws ExecutionException, InterruptedException {
         //Arrange
         InternalTestHelper.setInternalUserNumber(1);
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
         rewardsService.setDefaultProximityBuffer(Integer.MAX_VALUE);
-        User user = userService.getAllUsers().get(0);
+        User user= userService.getAllUsers().get(0);
 
         //Act
         rewardsService.calculateRewards(user).get();

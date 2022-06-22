@@ -34,8 +34,6 @@ public class RewardsServiceTest {
 
     @BeforeEach
     void setUp() {
-
-
         user             = new User(UUID.randomUUID(), "john", "123445", "john@tourguide.com");
         location         = new Location(33.817595D, -117.922008D);
         visitedLocation  = new VisitedLocation(UUID.randomUUID(), location, new Date());

@@ -2,6 +2,7 @@ package tourGuide.controller;
 
 import Common.DTO.NearAttractionDTO;
 import Common.DTO.UserDTO;
+import Common.DTO.UserPreferencesDTO;
 import Common.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import tourGuide.Util.JsonTestMapper;
+import tourGuide.exception.AlreadyExistsException;
+import tourGuide.exception.DataNotFoundException;
 import tourGuide.service.TourGuideService;
 
 import java.util.*;
@@ -21,10 +24,10 @@ import java.util.concurrent.CompletableFuture;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,7 +36,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class TourGuideControllerTest {
 
     @Autowired
-    private MockMvc          mockMvc;
+    private MockMvc mockMvc;
+
     @MockBean
     private TourGuideService tourGuideService;
 
@@ -147,20 +151,6 @@ public class TourGuideControllerTest {
                        "\"price\":34")));
     }
 
-    //   @Test
-    void AddUserTest() throws Exception {
-        //Arrange
-        UserDTO user = new UserDTO("john", "123445", "john@tourguide.com");
-        doNothing().when(tourGuideService).addUser(user);
-        //Act
-        mockMvc.perform(post("/user")
-                       .contentType(MediaType.APPLICATION_JSON)
-                       .accept(MediaType.APPLICATION_JSON)
-                       .content(JsonTestMapper.asJsonString(user)))
 
-               //Assert
-               .andExpect(status().isCreated())
-               .andExpect(content().string(containsString(
-                       "\"price\":34")));
-    }
+
 }

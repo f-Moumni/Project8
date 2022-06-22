@@ -10,8 +10,8 @@ public class UserPreferencesDTO {
 	
 	private int attractionProximity = Integer.MAX_VALUE;
 	private CurrencyUnit currency = Monetary.getCurrency("USD");
-	private Money lowerPricePoint = Money.of(0, currency);
-	private Money highPricePoint = Money.of(Integer.MAX_VALUE, currency);
+	private double lowerPricePoint = 0;
+	private double highPricePoint = Integer.MAX_VALUE;
 	private int tripDuration = 1;
 	private int ticketQuantity = 1;
 	private int numberOfAdults = 1;
@@ -19,7 +19,26 @@ public class UserPreferencesDTO {
 	
 	public UserPreferencesDTO() {
 	}
-	
+
+	public UserPreferencesDTO(int attractionProximity, CurrencyUnit currency, double lowerPricePoint, double highPricePoint, int tripDuration, int ticketQuantity, int numberOfAdults, int numberOfChildren) {
+
+		this.attractionProximity = attractionProximity;
+		this.currency            = currency;
+		this.lowerPricePoint     = lowerPricePoint;
+		this.highPricePoint      = highPricePoint;
+		this.tripDuration        = tripDuration;
+		this.ticketQuantity      = ticketQuantity;
+		this.numberOfAdults      = numberOfAdults;
+		this.numberOfChildren    = numberOfChildren;
+	}
+
+	public UserPreferencesDTO(int tripDuration, int ticketQuantity, int numberOfAdults, int numberOfChildren) {
+		this.tripDuration     = tripDuration;
+		this.ticketQuantity   = ticketQuantity;
+		this.numberOfAdults   = numberOfAdults;
+		this.numberOfChildren = numberOfChildren;
+	}
+
 	public void setAttractionProximity(int attractionProximity) {
 		this.attractionProximity = attractionProximity;
 	}
@@ -28,21 +47,7 @@ public class UserPreferencesDTO {
 		return attractionProximity;
 	}
 	
-	public Money getLowerPricePoint() {
-		return lowerPricePoint;
-	}
 
-	public void setLowerPricePoint(Money lowerPricePoint) {
-		this.lowerPricePoint = lowerPricePoint;
-	}
-
-	public Money getHighPricePoint() {
-		return highPricePoint;
-	}
-
-	public void setHighPricePoint(Money highPricePoint) {
-		this.highPricePoint = highPricePoint;
-	}
 	
 	public int getTripDuration() {
 		return tripDuration;

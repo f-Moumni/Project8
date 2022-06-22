@@ -1,4 +1,4 @@
-package tourGuide.Exception;
+package tourGuide.exception;
 
 public class AlreadyExistsException extends Exception{
 
