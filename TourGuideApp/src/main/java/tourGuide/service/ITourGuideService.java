@@ -32,7 +32,7 @@ public interface ITourGuideService {
 
     List<Provider> getTripDeals(User user);
 
-    void addUser(UserDTO user) throws AlreadyExistsException;
 
-    void addUserPreferences(User user, UserPreferencesDTO userPreferences);
+
+
 }

@@ -89,7 +89,7 @@ public class TourGuideServiceTest {
 
     }
 
-  //  @Test
+  @Test
     void getNearAttractions() throws ExecutionException, InterruptedException, DataNotFoundException {
         //Arrange
         user.addToVisitedLocations(visitedLocation);
@@ -176,15 +176,5 @@ public class TourGuideServiceTest {
         assertThat(providers.size()).isEqualTo(2);
     }
 
-    @Test
-    void addUserTest() throws AlreadyExistsException {
-        //Arrange
-        UserDTO userDTO = new UserDTO( "john", "123445", "john@tourguide.com");
-        doNothing().when(userService).addUser(any(User.class));
-        //Act
-        tourGuideService.addUser(userDTO);
-        //Assert
-        verify(userService).addUser(any());
 
-    }
 }

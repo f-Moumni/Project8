@@ -1,6 +1,8 @@
 package tourGuide.service;
 
 import Common.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tourGuide.proxies.RewardsServiceProxy;
@@ -11,12 +13,12 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 @Service
 public class RewardsService implements IRewardsService {
 
-    public ExecutorService service = Executors.newFixedThreadPool(100);
+    private final Logger          logger  = LoggerFactory.getLogger(RewardsService.class);
+    public        ExecutorService service = Executors.newFixedThreadPool(200);
 
     @Autowired
     private GpsUtilService gpsUtilService;
@@ -33,18 +35,18 @@ public class RewardsService implements IRewardsService {
 
         final List<VisitedLocation> userLocations = user.getVisitedLocations();
         final List<UserReward>      userRewards   = user.getUserRewards();
-        final List<Attraction> attractions = gpsUtilService.getAttractions()
-                                                           .parallelStream()
-                                                           .filter(a -> userRewards.stream()
-                                                                                   .noneMatch(r -> r.getAttraction()
-                                                                                                    .getAttractionName()
-                                                                                                    .equals(a.getAttractionName())))
-                                                           .collect(Collectors.toList());
+        final List<Attraction>      attractions   = gpsUtilService.getAttractions();
         return CompletableFuture.runAsync(() -> {
             userLocations.forEach(vl -> attractions.stream()
                                                    .filter(a -> isNearAttraction(vl, a))
-                                                   .forEach(a -> user.addUserReward(new UserReward(vl, a, getRewardPoints(a.getAttractionId(), user.getUserId())))
-            ));
+                                                   .forEach(a -> {
+                                                       if (userRewards.stream()
+                                                                      .noneMatch(r -> r.getAttraction()
+                                                                                       .getAttractionName()
+                                                                                       .equals(a.getAttractionName()))) {
+                                                           user.addUserReward(new UserReward(vl, a, getRewardPoints(a.getAttractionId(), user.getUserId())));
+                                                       }
+                                                   }));
         }, service);
 
     }

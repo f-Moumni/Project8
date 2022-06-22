@@ -99,7 +99,7 @@ public class TestPerformance {
     }
 
 
-   //@Test
+   @Test
     public void highVolumeGetRewards() {
 
         StopWatch stopWatch = new StopWatch();

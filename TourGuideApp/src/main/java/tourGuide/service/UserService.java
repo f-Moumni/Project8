@@ -1,5 +1,6 @@
 package tourGuide.service;
 
+import Common.DTO.UserDTO;
 import Common.DTO.UserPreferencesDTO;
 import Common.model.User;
 import Common.model.UserPreferences;
@@ -12,6 +13,7 @@ import tourGuide.exception.DataNotFoundException;
 import tourGuide.repository.UserRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserService implements IUserService {
@@ -37,17 +39,18 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void addUser(User user) throws AlreadyExistsException {
+    public void addUser(UserDTO userDTO) throws AlreadyExistsException {
 
-        User userToSave = userRepository.findByUserName(user.getUserName());
+        User userToSave = userRepository.findByUserName(userDTO.getUserName());
         if (userToSave != null) {
-            throw new AlreadyExistsException("User with username : " + user.getUserName() + " already exists ");
+            throw new AlreadyExistsException("User with username : " + userDTO.getUserName() + " already exists ");
         }
-        userRepository.saveUser(user);
+        userRepository.saveUser(new User(UUID.randomUUID(),userDTO.getUserName(), userDTO.getPhoneNumber(), userDTO.getEmailAddress()));
     }
 
     @Override
-    public void addUserPreferences(User user, UserPreferencesDTO userPreferences) {
+    public void addUserPreferences(String userName, UserPreferencesDTO userPreferences) throws DataNotFoundException {
+        User user =getUser(userName);
         user.setUserPreferences(new UserPreferences(userPreferences.getTripDuration(),userPreferences.getTicketQuantity(),userPreferences.getNumberOfAdults(),userPreferences.getNumberOfChildren()));
     }
 

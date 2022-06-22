@@ -111,7 +111,7 @@ public class TourGuideService implements ITourGuideService {
     @Override
     public CompletableFuture<List<NearAttractionDTO>> getNearAttractions(String userName) throws DataNotFoundException {
 
-        User user = userService.getUser(userName);
+        User user = getUser(userName);
         return getUserLocation(user)
                 .thenApply(visitedLocation -> {
                     return gpsUtilService.getAttractions()
@@ -166,13 +166,7 @@ public class TourGuideService implements ITourGuideService {
         return providers;
     }
 
-    @Override
-    public void addUser(UserDTO userDTO) throws AlreadyExistsException {
-        userService.addUser(new User(UUID.randomUUID(), userDTO.getUserName(), userDTO.getPhoneNumber(), userDTO.getEmailAddress()));
-    }
 
-    @Override
-    public void addUserPreferences(User user, UserPreferencesDTO userPreferences) {
-        userService.addUserPreferences( user,  userPreferences);
-    }
+
+
 }

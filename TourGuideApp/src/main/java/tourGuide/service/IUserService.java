@@ -1,5 +1,6 @@
 package tourGuide.service;
 
+import Common.DTO.UserDTO;
 import Common.DTO.UserPreferencesDTO;
 import Common.model.User;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,9 @@ public interface IUserService {
 
     List<User> getAllUsers();
 
-    void addUser(User user) throws AlreadyExistsException;
 
-    void addUserPreferences(User user, UserPreferencesDTO userPreferences);
+
+    void addUser(UserDTO user) throws AlreadyExistsException;
+
+    void addUserPreferences(String user, UserPreferencesDTO userPreferences) throws DataNotFoundException;
 }

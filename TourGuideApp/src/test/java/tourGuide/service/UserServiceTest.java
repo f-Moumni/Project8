@@ -1,5 +1,6 @@
 package tourGuide.service;
 
+import Common.DTO.UserDTO;
 import Common.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,7 @@ public class UserServiceTest {
     @InjectMocks
     UserService    userService;
     private  User            user;
+    private  UserDTO            userDTO;
     private VisitedLocation visitedLocation;
     private Location        location;
     private UserReward      userReward;
@@ -37,6 +39,7 @@ public class UserServiceTest {
 
 
         user             = new User(UUID.randomUUID(), "john", "123445", "john@tourguide.com");
+        userDTO             = new UserDTO( "john", "123445", "john@tourguide.com");
            location         = new Location(33.817595D, -117.922008D);
         visitedLocation  = new VisitedLocation(UUID.randomUUID(), location, new Date());
         attraction = new Attraction(33.817595D, -117.922008D, "Disneyland", "Anaheim", "CA", UUID.randomUUID());
@@ -58,17 +61,18 @@ public class UserServiceTest {
         doReturn(null).when(userRepository).findByUserName(any(String.class));
         doNothing().when(userRepository).saveUser(any(User.class));
         //Act
-        userService.addUser(user);
+        userService.addUser(userDTO);
         //Assert
         verify(userRepository).saveUser(any());
 
     }
+
     @Test
     void addUserTest_throwAlreadyExistsException() throws AlreadyExistsException {
         //Arrange
         doReturn(user).when(userRepository).findByUserName(any(String.class));
         //Act //Assert
-        assertThrows (AlreadyExistsException.class,()->  userService.addUser(user));
+        assertThrows (AlreadyExistsException.class,()->  userService.addUser(userDTO));
         verify(userRepository).findByUserName(any());
 
     }
@@ -91,4 +95,5 @@ public class UserServiceTest {
         assertThrows (DataNotFoundException.class,()->  userService.getUser("john"));
 
     }
+
 }

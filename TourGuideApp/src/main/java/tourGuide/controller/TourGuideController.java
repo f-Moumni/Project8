@@ -59,19 +59,7 @@ public class TourGuideController {
         return JsonStream.serialize(providers);
     }
 
-    @PostMapping("/user")
-    public ResponseEntity<String> AddUser(@RequestBody UserDTO newUser) throws AlreadyExistsException {
 
-        tourGuideService.addUser(newUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body("user saved successfully !!");
-    }
-
-    @PostMapping("/addUserPreferences")
-    public ResponseEntity<String> addUserPreferences(@RequestParam(value = "userName") String userName, @RequestBody UserPreferencesDTO userPreferences) throws DataNotFoundException {
-        User user = getUser(userName);
-        tourGuideService.addUserPreferences(user, userPreferences);
-        return ResponseEntity.status(HttpStatus.CREATED).body("user preferences saved successfully !!");
-    }
 
     private User getUser(String userName) throws DataNotFoundException {
 
