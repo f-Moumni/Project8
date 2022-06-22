@@ -2,18 +2,18 @@ package tourGuide.service;
 
 import Common.DTO.NearAttractionDTO;
 import Common.DTO.UserDTO;
+import Common.DTO.UserPreferencesDTO;
 import Common.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import tourGuide.Exception.AlreadyExistsException;
-import tourGuide.Exception.DataNotFoundException;
+import tourGuide.exception.AlreadyExistsException;
+import tourGuide.exception.DataNotFoundException;
 import tourGuide.proxies.TripPricerServiceProxy;
 import tourGuide.tracker.Tracker;
 import tourGuide.utils.Distance;
 import tourGuide.utils.Initializer;
-import tourGuide.utils.Mapper;
 
 import java.util.Comparator;
 import java.util.List;
@@ -169,5 +169,10 @@ public class TourGuideService implements ITourGuideService {
     @Override
     public void addUser(UserDTO userDTO) throws AlreadyExistsException {
         userService.addUser(new User(UUID.randomUUID(), userDTO.getUserName(), userDTO.getPhoneNumber(), userDTO.getEmailAddress()));
+    }
+
+    @Override
+    public void addUserPreferences(User user, UserPreferencesDTO userPreferences) {
+        userService.addUserPreferences( user,  userPreferences);
     }
 }

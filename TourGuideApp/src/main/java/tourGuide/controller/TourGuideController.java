@@ -1,6 +1,7 @@
 package tourGuide.controller;
 
 import Common.DTO.UserDTO;
+import Common.DTO.UserPreferencesDTO;
 import Common.model.Provider;
 import Common.model.User;
 import com.jsoniter.output.JsonStream;
@@ -8,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tourGuide.Exception.AlreadyExistsException;
-import tourGuide.Exception.DataNotFoundException;
+import tourGuide.exception.AlreadyExistsException;
+import tourGuide.exception.DataNotFoundException;
 import tourGuide.service.ITourGuideService;
 
 import java.util.List;
@@ -29,7 +30,8 @@ public class TourGuideController {
 
     @RequestMapping("/Location")
     public String getLocation(@RequestParam String userName) throws DataNotFoundException {
-        return JsonStream.serialize (tourGuideService.getUserLocation(getUser(userName)).join());
+
+        return JsonStream.serialize(tourGuideService.getUserLocation(getUser(userName)).join());
     }
 
     @RequestMapping("/NearbyAttractions")
@@ -59,8 +61,16 @@ public class TourGuideController {
 
     @PostMapping("/user")
     public ResponseEntity<String> AddUser(@RequestBody UserDTO newUser) throws AlreadyExistsException {
+
         tourGuideService.addUser(newUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body("done !!");
+        return ResponseEntity.status(HttpStatus.CREATED).body("user saved successfully !!");
+    }
+
+    @PostMapping("/addUserPreferences")
+    public ResponseEntity<String> addUserPreferences(@RequestParam(value = "userName") String userName, @RequestBody UserPreferencesDTO userPreferences) throws DataNotFoundException {
+        User user = getUser(userName);
+        tourGuideService.addUserPreferences(user, userPreferences);
+        return ResponseEntity.status(HttpStatus.CREATED).body("user preferences saved successfully !!");
     }
 
     private User getUser(String userName) throws DataNotFoundException {

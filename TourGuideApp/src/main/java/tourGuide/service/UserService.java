@@ -1,12 +1,14 @@
 package tourGuide.service;
 
+import Common.DTO.UserPreferencesDTO;
 import Common.model.User;
+import Common.model.UserPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import tourGuide.Exception.AlreadyExistsException;
-import tourGuide.Exception.DataNotFoundException;
+import tourGuide.exception.AlreadyExistsException;
+import tourGuide.exception.DataNotFoundException;
 import tourGuide.repository.UserRepository;
 
 import java.util.List;
@@ -42,6 +44,11 @@ public class UserService implements IUserService {
             throw new AlreadyExistsException("User with username : " + user.getUserName() + " already exists ");
         }
         userRepository.saveUser(user);
+    }
+
+    @Override
+    public void addUserPreferences(User user, UserPreferencesDTO userPreferences) {
+        user.setUserPreferences(new UserPreferences(userPreferences.getTripDuration(),userPreferences.getTicketQuantity(),userPreferences.getNumberOfAdults(),userPreferences.getNumberOfChildren()));
     }
 
 

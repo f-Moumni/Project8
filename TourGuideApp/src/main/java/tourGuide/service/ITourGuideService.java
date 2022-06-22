@@ -2,14 +2,14 @@ package tourGuide.service;
 
 import Common.DTO.NearAttractionDTO;
 import Common.DTO.UserDTO;
+import Common.DTO.UserPreferencesDTO;
 import Common.model.*;
 import org.springframework.stereotype.Service;
-import tourGuide.Exception.AlreadyExistsException;
-import tourGuide.Exception.DataNotFoundException;
+import tourGuide.exception.AlreadyExistsException;
+import tourGuide.exception.DataNotFoundException;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 @Service
 public interface ITourGuideService {
@@ -33,4 +33,6 @@ public interface ITourGuideService {
     List<Provider> getTripDeals(User user);
 
     void addUser(UserDTO user) throws AlreadyExistsException;
+
+    void addUserPreferences(User user, UserPreferencesDTO userPreferences);
 }

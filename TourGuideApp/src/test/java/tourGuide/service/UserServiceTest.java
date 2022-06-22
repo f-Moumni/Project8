@@ -1,6 +1,5 @@
 package tourGuide.service;
 
-import Common.DTO.UserDTO;
 import Common.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,8 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import tourGuide.Exception.AlreadyExistsException;
-import tourGuide.Exception.DataNotFoundException;
+import tourGuide.exception.AlreadyExistsException;
+import tourGuide.exception.DataNotFoundException;
 import tourGuide.repository.UserRepository;
 
 import java.util.Date;
