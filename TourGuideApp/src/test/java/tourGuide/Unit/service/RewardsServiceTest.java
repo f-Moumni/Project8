@@ -1,4 +1,4 @@
-package tourGuide.service;
+package tourGuide.Unit.service;
 
 import Common.model.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,6 +8,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tourGuide.proxies.RewardsServiceProxy;
+import tourGuide.service.GpsUtilService;
+import tourGuide.service.RewardsService;
 
 import java.util.Date;
 import java.util.List;

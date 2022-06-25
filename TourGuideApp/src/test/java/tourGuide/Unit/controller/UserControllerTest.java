@@ -1,4 +1,4 @@
-package tourGuide.controller;
+package tourGuide.Unit.controller;
 
 import Common.DTO.UserDTO;
 import Common.DTO.UserPreferencesDTO;
@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import tourGuide.Util.JsonTestMapper;
+import tourGuide.controller.UserController;
 import tourGuide.service.IUserService;
 
 import java.util.Date;
