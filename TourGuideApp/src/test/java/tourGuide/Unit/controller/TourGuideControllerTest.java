@@ -1,4 +1,4 @@
-package tourGuide.controller;
+package tourGuide.Unit.controller;
 
 import Common.DTO.NearAttractionDTO;
 import Common.DTO.UserDTO;
@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import tourGuide.Util.JsonTestMapper;
+import tourGuide.controller.TourGuideController;
 import tourGuide.exception.AlreadyExistsException;
 import tourGuide.exception.DataNotFoundException;
 import tourGuide.service.TourGuideService;

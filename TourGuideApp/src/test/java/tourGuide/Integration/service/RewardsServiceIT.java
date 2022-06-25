@@ -63,7 +63,7 @@ public class RewardsServiceIT {
         List<UserReward> userRewards = user.getUserRewards();
         tourGuideService.tracker.stopTracking();
         //Assert
-        assertThat(userRewards.size()).isEqualTo( 1);
+        assertThat(userRewards.size()).isGreaterThan(0);
     }
 
     @Test

@@ -1,4 +1,4 @@
-package tourGuide.service;
+package tourGuide.Unit.service;
 
 import Common.DTO.UserDTO;
 import Common.model.*;
@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import tourGuide.exception.AlreadyExistsException;
 import tourGuide.exception.DataNotFoundException;
 import tourGuide.repository.UserRepository;
+import tourGuide.service.UserService;
 
 import java.util.Date;
 import java.util.List;

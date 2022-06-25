@@ -1,4 +1,4 @@
-package tourGuide.service;
+package tourGuide.Unit.service;
 
 import Common.DTO.NearAttractionDTO;
 import Common.DTO.UserDTO;
@@ -12,6 +12,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import tourGuide.exception.AlreadyExistsException;
 import tourGuide.exception.DataNotFoundException;
 import tourGuide.proxies.TripPricerServiceProxy;
+import tourGuide.service.GpsUtilService;
+import tourGuide.service.RewardsService;
+import tourGuide.service.TourGuideService;
+import tourGuide.service.UserService;
 import tourGuide.utils.Distance;
 import tourGuide.utils.Initializer;
 
@@ -28,14 +32,14 @@ public class TourGuideServiceTest {
     @Mock
     private TripPricerServiceProxy tripPricerServiceProxy;
     @Mock
-    private Initializer            initializer;
-    private TourGuideService       tourGuideService;
+    private Initializer      initializer;
+    private TourGuideService tourGuideService;
     @Mock
-    private RewardsService         rewardsService;
+    private RewardsService   rewardsService;
     @Mock
-    private UserService            userService;
+    private UserService      userService;
     @Mock
-    private GpsUtilService         gpsUtilService;
+    private GpsUtilService   gpsUtilService;
 
     private User            user;
     private VisitedLocation visitedLocation;
