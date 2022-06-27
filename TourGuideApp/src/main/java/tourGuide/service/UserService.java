@@ -49,7 +49,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void addUserPreferences(String userName, UserPreferencesDTO userPreferences) throws DataNotFoundException {
+    public void updateUserPreferences(String userName, UserPreferencesDTO userPreferences) throws DataNotFoundException {
         User user =getUser(userName);
         user.setUserPreferences(new UserPreferences(userPreferences.getTripDuration(),userPreferences.getTicketQuantity(),userPreferences.getNumberOfAdults(),userPreferences.getNumberOfChildren()));
     }

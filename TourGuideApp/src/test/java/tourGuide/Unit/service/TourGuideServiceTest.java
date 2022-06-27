@@ -1,15 +1,17 @@
 package tourGuide.Unit.service;
 
 import Common.DTO.NearAttractionDTO;
-import Common.DTO.UserDTO;
 import Common.model.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import tourGuide.exception.AlreadyExistsException;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import tourGuide.exception.DataNotFoundException;
 import tourGuide.proxies.TripPricerServiceProxy;
 import tourGuide.service.GpsUtilService;
@@ -26,20 +28,20 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(SpringExtension.class)
 public class TourGuideServiceTest {
 
-    @Mock
+    @MockBean
     private TripPricerServiceProxy tripPricerServiceProxy;
-    @Mock
-    private Initializer      initializer;
-    private TourGuideService tourGuideService;
-    @Mock
-    private RewardsService   rewardsService;
-    @Mock
-    private UserService      userService;
-    @Mock
-    private GpsUtilService   gpsUtilService;
+    @MockBean
+    private Initializer            initializer;
+    private TourGuideService       tourGuideService;
+    @MockBean
+    private RewardsService         rewardsService;
+    @MockBean
+    private UserService            userService;
+    @MockBean
+    private GpsUtilService         gpsUtilService;
 
     private User            user;
     private VisitedLocation visitedLocation;
@@ -92,8 +94,8 @@ public class TourGuideServiceTest {
         assertThat(result).isEqualToComparingFieldByField(visitedLocation);
 
     }
-
-  @Test
+    @Order(1)
+    @Test
     void getNearAttractions() throws ExecutionException, InterruptedException, DataNotFoundException {
         //Arrange
         user.addToVisitedLocations(visitedLocation);
@@ -133,6 +135,7 @@ public class TourGuideServiceTest {
         assertThat(attractionDTOS.get(4).getAttractionName()).isEqualTo("Jackson 2");
     }
 
+
     @Test
     void getAllUsersLocationTest() {
         //Arrange
@@ -149,7 +152,7 @@ public class TourGuideServiceTest {
     @Test
     void getAllUsersTest() {
         //Arrange
-       when(userService.getAllUsers()).thenReturn(List.of(user));
+        when(userService.getAllUsers()).thenReturn(List.of(user));
         //Act
         List<User> users = tourGuideService.getAllUsers();
         //Assert

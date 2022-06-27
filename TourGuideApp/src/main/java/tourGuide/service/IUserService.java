@@ -19,5 +19,5 @@ public interface IUserService {
 
     void addUser(UserDTO user) throws AlreadyExistsException;
 
-    void addUserPreferences(String user, UserPreferencesDTO userPreferences) throws DataNotFoundException;
+    void updateUserPreferences(String user, UserPreferencesDTO userPreferences) throws DataNotFoundException;
 }

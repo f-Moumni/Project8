@@ -1,15 +1,12 @@
 package tourGuide.controller;
 
-import Common.DTO.UserDTO;
-import Common.DTO.UserPreferencesDTO;
 import Common.model.Provider;
 import Common.model.User;
 import com.jsoniter.output.JsonStream;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import tourGuide.exception.AlreadyExistsException;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import tourGuide.exception.DataNotFoundException;
 import tourGuide.service.ITourGuideService;
 
@@ -58,7 +55,6 @@ public class TourGuideController {
         List<Provider> providers = tourGuideService.getTripDeals(getUser(userName));
         return JsonStream.serialize(providers);
     }
-
 
 
     private User getUser(String userName) throws DataNotFoundException {

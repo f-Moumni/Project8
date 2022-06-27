@@ -113,7 +113,7 @@ public class TourGuideService implements ITourGuideService {
 
         User user = getUser(userName);
         return getUserLocation(user)
-                .thenApply(visitedLocation -> {
+                .thenApplyAsync(visitedLocation -> {
                     return gpsUtilService.getAttractions()
                                          .stream()
                                          .map(attraction -> {

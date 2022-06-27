@@ -1,7 +1,6 @@
 package gps.service;
 
 
-import gps.Exception.DataNotFoundException;
 import gps.repository.GpsRepository;
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
@@ -31,13 +30,9 @@ public class GpsService {
         this.gpsRepository.loadAttractions(gpsUtil.getAttractions());
     }
 
-    public VisitedLocation getUserLocation(UUID userId) throws DataNotFoundException {
+    public VisitedLocation getUserLocation(UUID userId)  {
 
-        VisitedLocation visitedLocation = gpsUtil.getUserLocation(userId);
-        if (visitedLocation == null) {
-            throw new DataNotFoundException("user with ID " + userId + " note found");
-        }
-        return visitedLocation;
+        return gpsUtil.getUserLocation(userId);
     }
 
     public List<Attraction> getAttractions() {

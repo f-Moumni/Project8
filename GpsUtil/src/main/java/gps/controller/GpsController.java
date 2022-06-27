@@ -1,6 +1,5 @@
 package gps.controller;
 
-import gps.Exception.DataNotFoundException;
 import gps.service.GpsService;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
@@ -23,7 +22,7 @@ public class GpsController {
     }
 
     @GetMapping("userLocation")
-    public VisitedLocation getUserLocation(@RequestParam UUID userID ) throws DataNotFoundException {
+    public VisitedLocation getUserLocation(@RequestParam UUID userID )  {
         return gpsService.getUserLocation(userID);
     }
 }

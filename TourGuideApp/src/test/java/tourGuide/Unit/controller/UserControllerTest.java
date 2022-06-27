@@ -23,12 +23,14 @@ import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(UserController.class)
 public class UserControllerTest {
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -51,6 +53,7 @@ public class UserControllerTest {
         attraction      = new Attraction(33.817595D, -117.922008D, "Disneyland", "Anaheim", "CA", UUID.randomUUID());
         userReward      = new UserReward(visitedLocation, attraction, 22);
     }
+
     @Test
     void AddUserTest() throws Exception {
         //Arrange
@@ -73,16 +76,16 @@ public class UserControllerTest {
     void addUserPreferences() throws Exception {
         //Arrange
         UserPreferencesDTO userPreferencesDto = new UserPreferencesDTO(3, 3, 2, 1);
-        doNothing().when(userService).addUserPreferences(any(),any());
+        doNothing().when(userService).updateUserPreferences(any(), any());
         //Act
-        mockMvc.perform(post("/addUserPreferences")
+        mockMvc.perform(put("/userPreferences")
                        .contentType(MediaType.APPLICATION_JSON)
                        .accept(MediaType.APPLICATION_JSON)
                        .param("userName", "john")
                        .content(JsonTestMapper.asJsonString(userPreferencesDto)))
 
                //Assert
-               .andExpect(status().isCreated())
+               .andExpect(status().isOk())
                .andExpect(content().string(containsString(
                        "user preferences saved successfully ")));
     }

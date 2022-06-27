@@ -72,11 +72,11 @@ public class TestPerformance {
      */
 
 
-   // @Test
+    @Test
     public void highVolumeTrackLocation() {
 
         // Users should be incremented up to 100,000, and test finishes within 15 minutes
-        InternalTestHelper.setInternalUserNumber(100000);
+        InternalTestHelper.setInternalUserNumber(5000);
 
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
         List<User> allUsers = tourGuideService.getAllUsers();
@@ -84,7 +84,7 @@ public class TestPerformance {
         StopWatch                                stopWatch   = new StopWatch();
         stopWatch.start();
 
-        allUsers.forEach(u -> tasksFuture.add(tourGuideService.trackUserLocation(u)));
+        allUsers.parallelStream().forEach(u -> tasksFuture.add(tourGuideService.trackUserLocation(u)));
 
         CompletableFuture<Void> allFutures = CompletableFuture
                 .allOf(tasksFuture.toArray(new CompletableFuture[tasksFuture.size()]));
@@ -106,7 +106,7 @@ public class TestPerformance {
 
         // Users should be incremented up to 100,000, and test finishes within 20 minutes
 
-        InternalTestHelper.setInternalUserNumber(1000);
+        InternalTestHelper.setInternalUserNumber(10000);
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
 
         Attraction attraction = gpsUtilService.getAttractions().get(0);

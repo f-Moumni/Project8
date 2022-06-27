@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 public class RewardsService implements IRewardsService {
 
     private final Logger          logger  = LoggerFactory.getLogger(RewardsService.class);
-    public        ExecutorService service = Executors.newFixedThreadPool(200);
+    public        ExecutorService service = Executors.newFixedThreadPool(100);
 
     @Autowired
     private GpsUtilService gpsUtilService;

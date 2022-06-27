@@ -5,10 +5,7 @@ import Common.DTO.UserPreferencesDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import tourGuide.exception.AlreadyExistsException;
 import tourGuide.exception.DataNotFoundException;
 import tourGuide.service.IUserService;
@@ -29,10 +26,10 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body("user saved successfully !!");
     }
 
-    @PostMapping("/addUserPreferences")
-    public ResponseEntity<String> addUserPreferences(@RequestParam(value = "userName") String userName, @RequestBody UserPreferencesDTO userPreferences) throws DataNotFoundException {
+    @PutMapping("/userPreferences")
+    public ResponseEntity<String> updateUserPreferences(@RequestParam String userName, @RequestBody UserPreferencesDTO userPreferences) throws DataNotFoundException {
 
-        userService.addUserPreferences(userName, userPreferences);
-        return ResponseEntity.status(HttpStatus.CREATED).body("user preferences saved successfully !!");
+        userService.updateUserPreferences(userName, userPreferences);
+        return ResponseEntity.status(HttpStatus.OK).body("user preferences saved successfully !!");
     }
 }
