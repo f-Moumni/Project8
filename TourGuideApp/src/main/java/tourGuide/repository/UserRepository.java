@@ -37,14 +37,6 @@ public class UserRepository {
             internalUserMap.put(user.getUserName(), user);
         }
     }
-    /**********************************************************************************
-     *
-     * Methods Below: For Internal Testing
-     *
-     **********************************************************************************/
-
-    // Database connection will be used for external users, but for testing purposes internal users are provided and stored in memory
-    // private final Map<String, User> internalUserMap = new HashMap<>();
 
 
 

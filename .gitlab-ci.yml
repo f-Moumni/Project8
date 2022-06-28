@@ -1,16 +1,42 @@
 image: gradle:7.4.2-jdk11-alpine
 
-
 cache:
     paths:
         - .gradle/wrapper
         - .gradle/caches
 
 stages:
+    - compile
     - build
     - build_docker_images
     - test
 
+############compile##############
+compile-TourGuide:
+    stage: compile
+    script:
+        - cd TourGuideApp
+        - gradle compileJava assemble
+
+compile-GpsUtils:
+    stage: compile
+    script:
+        - cd GpsUtil
+        - gradle compileJava assemble
+
+compile-Rewards:
+    stage: compile
+    script:
+        - cd Rewards
+        - gradle compileJava assemble
+
+compile-Pricer:
+    stage: compile
+    script:
+        - cd TripPricer
+        - gradle compileJava assemble
+
+############build##############
 build-TourGuide:
     stage: build
     script:
@@ -47,6 +73,21 @@ build-Pricer:
         paths:
             - ./TripPricer/build/libs/*.jar
 
+############test##############
+test:
+    stage: test
+    services:
+        -   name: docker:dind
+    needs:
+        -   job: build-GpsUtils
+        -   job: build-Rewards
+        -   job: build-Pricer
+        -   job: build-TourGuide
+    script:
+        - cd TourGuideApp
+        - gradle test --tests 'tourGuide.Unit*'
+
+############build docker image ##############
 build_docker_images:
     services:
         -   name: docker:dind
@@ -60,18 +101,3 @@ build_docker_images:
         -   job: build-TourGuide
     script:
         - docker-compose build
-
-test:
-    stage: test
-    services:
-        -   name: docker:dind
-    needs:
-        -   job: build-GpsUtils
-        -   job: build-Rewards
-        -   job: build-Pricer
-        -   job: build-TourGuide
-        -   job: build_docker_images
-
-    script:
-        - cd TourGuideApp
-        - gradle test --tests 'tourGuide.Unit*'

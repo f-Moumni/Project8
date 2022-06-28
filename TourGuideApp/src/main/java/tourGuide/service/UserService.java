@@ -48,6 +48,13 @@ public class UserService implements IUserService {
         userRepository.saveUser(new User(UUID.randomUUID(),userDTO.getUserName(), userDTO.getPhoneNumber(), userDTO.getEmailAddress()));
     }
 
+
+    /**
+     * update User Preferences
+     * @param userName user's username to update
+     * @param userPreferences user's preferences
+     * @throws DataNotFoundException  if user not found
+     */
     @Override
     public void updateUserPreferences(String userName, UserPreferencesDTO userPreferences) throws DataNotFoundException {
         User user =getUser(userName);

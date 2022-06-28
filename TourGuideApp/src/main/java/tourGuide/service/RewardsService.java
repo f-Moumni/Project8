@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 public class RewardsService implements IRewardsService {
 
     private final Logger          logger  = LoggerFactory.getLogger(RewardsService.class);
-    public        ExecutorService service = Executors.newFixedThreadPool(100);
+    public        ExecutorService service = Executors.newFixedThreadPool(200);
 
     @Autowired
     private GpsUtilService gpsUtilService;
@@ -30,6 +30,11 @@ public class RewardsService implements IRewardsService {
     private int                 proximityBuffer          = defaultProximityBuffer;
     private int                 attractionProximityRange = 200;
 
+    /**
+     * calculate reward for given user
+     * @param user
+     * @return
+     */
     @Override
     public CompletableFuture<Void> calculateRewards(User user) {
 

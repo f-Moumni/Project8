@@ -89,25 +89,8 @@ public class TourGuideService implements ITourGuideService {
                 gpsUtilService.getUserLocation(user.getUserId()), service);
     }
 
-    /**
-     * calculate rewards for given user
-     *
-     * @param user
-     *
-     * @return a void CompletableFuture
 
-     @Override public CompletableFuture<Void> calculateRewards(User user) {
 
-     return rewardsService.calculateRewards(user);
-     }
-     */
-    /**
-     * get five near attraction to the given user;
-     *
-     * @param userName
-     *
-     * @return list off near attractions
-     */
     @Override
     public CompletableFuture<List<NearAttractionDTO>> getNearAttractions(String userName) throws DataNotFoundException {
 
