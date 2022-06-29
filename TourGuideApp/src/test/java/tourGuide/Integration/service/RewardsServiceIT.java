@@ -57,13 +57,13 @@ public class RewardsServiceIT {
         rewardsService.setDefaultProximityBuffer(10);
         InternalTestHelper.setInternalUserNumber(0);
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
-        User       user1       = new User(UUID.randomUUID(), "lola", "000", "jon@tourGuide.com");
+        User       user      = new User(UUID.randomUUID(), "lola", "000", "jon@tourGuide.com");
         Attraction attraction = gpsUtilService.getAttractions().get(0);
 
-        user1.addToVisitedLocations(new VisitedLocation(user1.getUserId(), attraction, new Date()));
+        user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
         //Act
-        rewardsService.calculateRewards(user1).get();
-        List<UserReward> userRewards = user1.getUserRewards();
+        rewardsService.calculateRewards(user).get();
+        List<UserReward> userRewards = user.getUserRewards();
         tourGuideService.tracker.stopTracking();
         //Assert
         assertThat(userRewards.size()).isEqualTo(1);
@@ -80,10 +80,13 @@ public class RewardsServiceIT {
     @Test
     public void nearAllAttractions() throws ExecutionException, InterruptedException {
         //Arrange
-        InternalTestHelper.setInternalUserNumber(1);
+        InternalTestHelper.setInternalUserNumber(0);
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
         rewardsService.setDefaultProximityBuffer(Integer.MAX_VALUE);
-        User user = tourGuideService.getAllUsers().get(0);
+        User       user      = new User(UUID.randomUUID(), "thom", "000", "jon@tourGuide.com");
+        Attraction attraction = gpsUtilService.getAttractions().get(0);
+
+        user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
         tourGuideService.tracker.stopTracking();
         //Act
         rewardsService.calculateRewards(user).get();

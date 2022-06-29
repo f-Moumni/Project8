@@ -49,7 +49,7 @@ public class TestPerformance {
         userService.deleteAll();
         stopWatch = new StopWatch();
         Locale.setDefault(new Locale.Builder().setLanguage("en").setRegion("US").build());
-        InternalTestHelper.setInternalUserNumber(1000);
+        InternalTestHelper.setInternalUserNumber(100000);
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
     }
 
