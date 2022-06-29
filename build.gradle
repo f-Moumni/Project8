@@ -14,6 +14,10 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: "jacoco"
 
+jar {
+    archiveBaseName = 'TourGuide'
+    archiveVersion =  '0.0.1'
+}
 
 repositories {
     mavenCentral()

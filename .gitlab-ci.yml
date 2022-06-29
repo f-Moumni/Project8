@@ -11,7 +11,7 @@ stages:
     - build_docker_images
     - test
 
-############compile##############
+############ compile ##############
 compile-TourGuide:
     stage: compile
     script:
@@ -36,8 +36,10 @@ compile-Pricer:
         - cd TripPricer
         - gradle compileJava assemble
 
-############build##############
+############ build ##############
 build-TourGuide:
+    tags:
+        - docker
     stage: build
     script:
         - cd TourGuideApp
@@ -47,6 +49,8 @@ build-TourGuide:
             - ./TourGuideApp/build/libs/*.jar
 
 build-GpsUtils:
+    tags:
+        - docker
     stage: build
     script:
         - cd GpsUtil
@@ -56,6 +60,8 @@ build-GpsUtils:
             - ./GpsUtil/build/libs/*.jar
 
 build-Rewards:
+    tags:
+        - docker
     stage: build
     script:
         - cd Rewards
@@ -65,6 +71,8 @@ build-Rewards:
             - ./Rewards/build/libs/*.jar
 
 build-Pricer:
+    tags:
+        - docker
     stage: build
     script:
         - cd TripPricer
@@ -73,8 +81,10 @@ build-Pricer:
         paths:
             - ./TripPricer/build/libs/*.jar
 
-############test##############
+############ test ##############
 test:
+    tags:
+        - docker
     stage: test
     services:
         -   name: docker:dind
@@ -85,10 +95,12 @@ test:
         -   job: build-TourGuide
     script:
         - cd TourGuideApp
-        - gradle test --tests 'tourGuide.Unit*'
+        - gradle clean test --tests 'tourGuide.Unit*'
 
-############build docker image ##############
+############ build docker image ##############
 build_docker_images:
+    tags:
+        - docker
     services:
         -   name: docker:dind
     image:
