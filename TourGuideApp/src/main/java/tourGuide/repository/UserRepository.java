@@ -1,23 +1,18 @@
 package tourGuide.repository;
 
-import Common.model.Location;
 import Common.model.User;
-import Common.model.VisitedLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
-import tourGuide.service.UserService;
-import tourGuide.utils.InternalTestHelper;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public class UserRepository {
-    private final Logger logger = LoggerFactory.getLogger(UserRepository.class);
+
 
     private final Map<String, User> internalUserMap = new HashMap<>();
 
@@ -38,6 +33,8 @@ public class UserRepository {
         }
     }
 
-
+    public void deleteAll() {
+        this.internalUserMap.clear();
+    }
 
 }

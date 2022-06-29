@@ -28,11 +28,9 @@ public interface ITourGuideService {
 
     Map<String, Location> getAllUsersLocation();
 
-    List<User> getAllUsers();
 
     List<Provider> getTripDeals(User user);
 
 
-
-
+    List<User> getAllUsers();
 }

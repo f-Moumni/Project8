@@ -15,10 +15,13 @@ import tourGuide.repository.UserRepository;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * user service class
+ */
 @Service
 public class UserService implements IUserService {
 
-    private final Logger         logger = LoggerFactory.getLogger(UserService.class);
+    private final Logger         LOGGER = LoggerFactory.getLogger(UserService.class);
     @Autowired
     private       UserRepository userRepository;
 
@@ -26,12 +29,14 @@ public class UserService implements IUserService {
     @Override
     public User getUser(String userName) throws DataNotFoundException {
 
+        LOGGER.debug("get user {}", userName);
         User user = userRepository.findByUserName(userName);
         if (user == null) {
-            throw new DataNotFoundException(" User with username : " +userName+" not found !!");
+            throw new DataNotFoundException(" User with username : " + userName + " not found !!");
         }
         return user;
     }
+
     @Override
     public List<User> getAllUsers() {
 
@@ -41,24 +46,38 @@ public class UserService implements IUserService {
     @Override
     public void addUser(UserDTO userDTO) throws AlreadyExistsException {
 
+        LOGGER.debug("get user {}", userDTO.getUserName());
         User userToSave = userRepository.findByUserName(userDTO.getUserName());
         if (userToSave != null) {
             throw new AlreadyExistsException("User with username : " + userDTO.getUserName() + " already exists ");
         }
-        userRepository.saveUser(new User(UUID.randomUUID(),userDTO.getUserName(), userDTO.getPhoneNumber(), userDTO.getEmailAddress()));
+        userRepository.saveUser(new User(UUID.randomUUID(), userDTO.getUserName(), userDTO.getPhoneNumber(), userDTO.getEmailAddress()));
     }
 
 
     /**
      * update User Preferences
-     * @param userName user's username to update
-     * @param userPreferences user's preferences
-     * @throws DataNotFoundException  if user not found
+     *
+     * @param userName
+     *         user's username to update
+     * @param userPreferences
+     *         user's preferences
+     *
+     * @throws DataNotFoundException
+     *         if user not found
      */
     @Override
     public void updateUserPreferences(String userName, UserPreferencesDTO userPreferences) throws DataNotFoundException {
-        User user =getUser(userName);
-        user.setUserPreferences(new UserPreferences(userPreferences.getTripDuration(),userPreferences.getTicketQuantity(),userPreferences.getNumberOfAdults(),userPreferences.getNumberOfChildren()));
+
+        LOGGER.debug("get user {}", userName);
+        User user = getUser(userName);
+        user.setUserPreferences(new UserPreferences(userPreferences.getTripDuration(), userPreferences.getTicketQuantity(), userPreferences.getNumberOfAdults(), userPreferences.getNumberOfChildren()));
+    }
+
+    @Override
+    public void deleteAll() {
+
+        userRepository.deleteAll();
     }
 
 

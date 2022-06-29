@@ -48,7 +48,7 @@ public class TourGuideServiceIT {
 
     @BeforeEach
     public void init() {
-
+userService.deleteAll();
         InternalTestHelper.setInternalUserNumber(0);
         Locale.setDefault(new Locale.Builder().setLanguage("en").setRegion("US").build());
     }

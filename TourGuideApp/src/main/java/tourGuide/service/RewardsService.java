@@ -17,7 +17,7 @@ import java.util.concurrent.Executors;
 @Service
 public class RewardsService implements IRewardsService {
 
-    private final Logger          logger  = LoggerFactory.getLogger(RewardsService.class);
+    private final Logger          LOGGER  = LoggerFactory.getLogger(RewardsService.class);
     public        ExecutorService service = Executors.newFixedThreadPool(200);
 
     @Autowired
@@ -32,12 +32,15 @@ public class RewardsService implements IRewardsService {
 
     /**
      * calculate reward for given user
+     *
      * @param user
+     *
      * @return
      */
     @Override
     public CompletableFuture<Void> calculateRewards(User user) {
 
+        LOGGER.debug(" calculating reward for user: {} ", user.getUserName());
         final List<VisitedLocation> userLocations = user.getVisitedLocations();
         final List<UserReward>      userRewards   = user.getUserRewards();
         final List<Attraction>      attractions   = gpsUtilService.getAttractions();
@@ -62,7 +65,6 @@ public class RewardsService implements IRewardsService {
     }
 
     public void setDefaultProximityBuffer(int proximityBuffer) {
-
         this.defaultProximityBuffer = proximityBuffer;
 
     }
@@ -81,13 +83,11 @@ public class RewardsService implements IRewardsService {
 
     @Override
     public boolean isNearAttraction(VisitedLocation visitedLocation, Location attractionLocation) {
-
         return Distance.getDistance(attractionLocation, visitedLocation.getLocation()) < defaultProximityBuffer;
     }
 
     @Override
     public int getRewardPoints(UUID attractionId, UUID userId) {
-
         return rewardsServiceProxy.getAttractionRewardPoints(attractionId, userId);
     }
 

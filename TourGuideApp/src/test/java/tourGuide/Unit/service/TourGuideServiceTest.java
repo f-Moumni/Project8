@@ -94,46 +94,6 @@ public class TourGuideServiceTest {
         assertThat(result).isEqualToComparingFieldByField(visitedLocation);
 
     }
-    @Order(1)
-  //  @Test
-    void getNearAttractions() throws ExecutionException, InterruptedException, DataNotFoundException {
-        //Arrange
-        user.addToVisitedLocations(visitedLocation);
-        doReturn(user).when(userService).getUser("john");
-        List<Attraction> attractions = new ArrayList<>();
-        attractions.add(new Attraction(43.582767D, -11.821999D, "Jackson 0", "Jackson Hole", "WY", UUID.randomUUID()));
-        attractions.add(new Attraction(43.582767D, -110.821999D, "Jackson 1", "Jackson Hole", "WY", UUID.randomUUID()));
-        attractions.add(new Attraction(66.582767D, -10.821999D, "Jackson 2", "Jackson ", "WY", UUID.randomUUID()));
-        attractions.add(new Attraction(53.582767D, -99.821999D, "Jackson 3", "Jackson Hole", "WY", UUID.randomUUID()));
-        attractions.add(new Attraction(18.582767D, -69.821999D, "Jackson 4", "Jackson ", "WY", UUID.randomUUID()));
-        attractions.add(new Attraction(43.582767D, -18.821999D, "Jackson 5", "Jackson Hole", "WY", UUID.randomUUID()));
-        attractions.add(new Attraction(66.582767D, -19.821999D, "Jackson 6 ", "Jackson ", "WY", UUID.randomUUID()));
-        doReturn(attractions).when(gpsUtilService).getAttractions();
-        try (MockedStatic<Distance> distance = mockStatic(Distance.class)) {
-            distance.when(() -> Distance.getDistance(user.getLastVisitedLocation().getLocation(), attractions.get(0)))
-                    .thenReturn(5988D);
-            distance.when(() -> Distance.getDistance(user.getLastVisitedLocation().getLocation(), attractions.get(1)))
-                    .thenReturn(53D);
-            distance.when(() -> Distance.getDistance(user.getLastVisitedLocation().getLocation(), attractions.get(2)))
-                    .thenReturn(2545D);
-            distance.when(() -> Distance.getDistance(user.getLastVisitedLocation().getLocation(), attractions.get(3)))
-                    .thenReturn(100D);
-            distance.when(() -> Distance.getDistance(user.getLastVisitedLocation().getLocation(), attractions.get(4)))
-                    .thenReturn(1456D);
-            distance.when(() -> Distance.getDistance(user.getLastVisitedLocation().getLocation(), attractions.get(5)))
-                    .thenReturn(3454D);
-            distance.when(() -> Distance.getDistance(user.getLastVisitedLocation().getLocation(), attractions.get(6)))
-                    .thenReturn(1545D);
-        }
-        doReturn(10).when(rewardsService).getRewardPoints(any(), any());
-        //Act
-        List<NearAttractionDTO> attractionDTOS = tourGuideService.getNearAttractions("john").get();
-
-        //Assert
-        assertThat(attractionDTOS.size()).isEqualTo(5);
-        assertThat(attractionDTOS.get(0).getAttractionName()).isEqualTo("Jackson 1");
-        assertThat(attractionDTOS.get(4).getAttractionName()).isEqualTo("Jackson 2");
-    }
 
 
     @Test

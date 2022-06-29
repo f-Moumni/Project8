@@ -1,14 +1,11 @@
 package tourGuide.service;
 
 import Common.DTO.NearAttractionDTO;
-import Common.DTO.UserDTO;
-import Common.DTO.UserPreferencesDTO;
 import Common.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import tourGuide.exception.AlreadyExistsException;
 import tourGuide.exception.DataNotFoundException;
 import tourGuide.proxies.TripPricerServiceProxy;
 import tourGuide.tracker.Tracker;
@@ -18,7 +15,6 @@ import tourGuide.utils.Initializer;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,13 +26,13 @@ import static tourGuide.constant.Constant.NUMBER_OF_NEAR_ATTRACTIONS;
 public class TourGuideService implements ITourGuideService {
 
     public final  Tracker                tracker;
-    private final Logger                 logger = LoggerFactory.getLogger(TourGuideService.class);
-    private final IGpsUtilService         gpsUtilService;
-    private final IRewardsService         rewardsService;
-    private final IUserService            userService;
+    private final Logger                 LOGGER = LoggerFactory.getLogger(TourGuideService.class);
+    private final IGpsUtilService        gpsUtilService;
+    private final IRewardsService        rewardsService;
+    private final IUserService           userService;
     private final TripPricerServiceProxy pricerServiceProxy;
     ExecutorService service = Executors.newFixedThreadPool(100);
-    private       Initializer            initializer;
+    private Initializer initializer;
 
 
     public TourGuideService(Initializer initializer, GpsUtilService gpsUtilService, RewardsService rewardsService, UserService userService, TripPricerServiceProxy tripPricerServiceProxy) {
@@ -65,6 +61,7 @@ public class TourGuideService implements ITourGuideService {
 
     @Override
     public List<UserReward> getUserRewards(User user) {
+
         return user.getUserRewards();
     }
 
@@ -77,6 +74,7 @@ public class TourGuideService implements ITourGuideService {
     @Override
     public CompletableFuture<VisitedLocation> getUserLocation(User user) {
 
+        LOGGER.debug("getting user: {} location", user.getUserName());
         return (user.getVisitedLocations().size() > 0) ?
                 CompletableFuture.completedFuture(user.getLastVisitedLocation())
                 : trackUserLocation(user);
@@ -86,14 +84,17 @@ public class TourGuideService implements ITourGuideService {
     public CompletableFuture<VisitedLocation> trackUserLocation(User user) {
 
         return CompletableFuture.supplyAsync(() ->
-                gpsUtilService.getUserLocation(user.getUserId()), service);
+                gpsUtilService.getUserLocation(user.getUserId()), service).thenApply(visitedLocation -> {
+            rewardsService.calculateRewards(user);
+            return visitedLocation;
+        });
     }
-
 
 
     @Override
     public CompletableFuture<List<NearAttractionDTO>> getNearAttractions(String userName) throws DataNotFoundException {
 
+        LOGGER.debug("getting Near Attractions off user: {} ", userName);
         User user = getUser(userName);
         return getUserLocation(user)
                 .thenApplyAsync(visitedLocation -> {
@@ -112,7 +113,7 @@ public class TourGuideService implements ITourGuideService {
 
     @Override
     public Map<String, Location> getAllUsersLocation() {
-
+        LOGGER.debug("getting get All Users Location");
         return getAllUsers().stream()
                             .collect(Collectors.
                                     toMap(u -> u.getUserId().toString(), u -> getUserLocation(u).join().getLocation()));
@@ -120,7 +121,7 @@ public class TourGuideService implements ITourGuideService {
 
 
     private void addShutDownHook() {
-
+        LOGGER.debug("adding ShutDownHook");
         Runtime.getRuntime().addShutdownHook(new Thread() {
 
             public void run() {
@@ -130,15 +131,11 @@ public class TourGuideService implements ITourGuideService {
         });
     }
 
-    @Override
-    public List<User> getAllUsers() {
 
-        return userService.getAllUsers();
-    }
 
     @Override
     public List<Provider> getTripDeals(User user) {
-
+        LOGGER.debug("getting get Trip Deals for userName : {}",user.getUserName());
         List<Provider> providers = pricerServiceProxy.getTripDeals(user.getUserId(),
                 user.getUserPreferences().getNumberOfAdults(), user.getUserPreferences().getNumberOfChildren(),
                 user.getUserPreferences().getTripDuration(), user.getUserRewards()
@@ -149,7 +146,9 @@ public class TourGuideService implements ITourGuideService {
         return providers;
     }
 
-
-
+ @Override
+ public List<User> getAllUsers(){
+        return userService.getAllUsers();
+ }
 
 }

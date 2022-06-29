@@ -2,7 +2,9 @@ plugins {
     id 'org.springframework.boot'
     id 'io.spring.dependency-management'
     id 'java'
+    id 'jacoco'
 }
+
 
 jar {
     archiveBaseName = 'gps-util'
@@ -23,7 +25,32 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 }
-
-tasks.named('test') {
+test {
     useJUnitPlatform()
+}
+
+jacoco {
+    toolVersion = "0.8.7"
+}
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        csv.enabled false
+        html.destination file("${buildDir}/jacocoHtml")
+    }
+}
+
+test.finalizedBy jacocoTestReport
+check.dependsOn jacocoTestCoverageVerification
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.5
+            }
+        }
+    }
 }

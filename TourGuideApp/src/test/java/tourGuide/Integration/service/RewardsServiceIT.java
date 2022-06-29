@@ -47,23 +47,26 @@ public class RewardsServiceIT {
     @BeforeEach
     public void init() {
 
+        userService.deleteAll();
         Locale.setDefault(new Locale.Builder().setLanguage("en").setRegion("US").build());
     }
 
     @Test
     public void userGetRewards() throws ExecutionException, InterruptedException {
         //Arrange
-        InternalTestHelper.setInternalUserNumber(1);
+        rewardsService.setDefaultProximityBuffer(10);
+        InternalTestHelper.setInternalUserNumber(0);
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
-        User user= userService.getAllUsers().get(0);
+        User       user1       = new User(UUID.randomUUID(), "lola", "000", "jon@tourGuide.com");
         Attraction attraction = gpsUtilService.getAttractions().get(0);
-        user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
+
+        user1.addToVisitedLocations(new VisitedLocation(user1.getUserId(), attraction, new Date()));
         //Act
-        rewardsService.calculateRewards(user).get();
-        List<UserReward> userRewards = user.getUserRewards();
+        rewardsService.calculateRewards(user1).get();
+        List<UserReward> userRewards = user1.getUserRewards();
         tourGuideService.tracker.stopTracking();
         //Assert
-        assertThat(userRewards.size()).isGreaterThan(0);
+        assertThat(userRewards.size()).isEqualTo(1);
     }
 
     @Test
@@ -80,13 +83,13 @@ public class RewardsServiceIT {
         InternalTestHelper.setInternalUserNumber(1);
         tourGuideService = new TourGuideService(initializer, gpsUtilService, rewardsService, userService, tripPricerServiceProxy);
         rewardsService.setDefaultProximityBuffer(Integer.MAX_VALUE);
-        User user= userService.getAllUsers().get(0);
-
+        User user = tourGuideService.getAllUsers().get(0);
+        tourGuideService.tracker.stopTracking();
         //Act
         rewardsService.calculateRewards(user).get();
         List<UserReward> userRewards = tourGuideService.getUserRewards(user);
         tourGuideService.tracker.stopTracking();
-
+        //Assert
         assertEquals(gpsUtilService.getAttractions().size(), userRewards.size());
     }
 

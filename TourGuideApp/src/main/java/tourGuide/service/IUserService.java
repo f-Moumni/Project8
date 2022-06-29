@@ -8,6 +8,8 @@ import tourGuide.exception.AlreadyExistsException;
 import tourGuide.exception.DataNotFoundException;
 
 import java.util.List;
+import java.util.UUID;
+
 @Service
 public interface IUserService {
 
@@ -20,4 +22,6 @@ public interface IUserService {
     void addUser(UserDTO user) throws AlreadyExistsException;
 
     void updateUserPreferences(String user, UserPreferencesDTO userPreferences) throws DataNotFoundException;
+
+    void deleteAll();
 }
